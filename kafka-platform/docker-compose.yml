@@ -42,7 +42,7 @@ services:
       SCHEMA_REGISTRY_KAFKASTORE_CONNECTION_URL: 'zookeeper:2181'
       SCHEMA_REGISTRY_HOST_NAME: schema_registry
       SCHEMA_REGISTRY_LISTENERS: 'http://schema_registry:8081'
-      SCHEMA_REGISTRY_DEBUG: "true"
+#      SCHEMA_REGISTRY_DEBUG: "true"
 
   kafka_rest:
     image: confluentinc/cp-kafka-rest:latest
