@@ -1,6 +1,4 @@
-KAFKA_DCK_NAME=cpallinone_broker_1
-ZOOKEEPER_HOSTNAME=zookeeper
-ZOOKEEPER_PORT=2181
+source scripts/dck-env.bash
 
 kafcddata() {
 	cd /var/lib/kafka/data/
@@ -8,7 +6,6 @@ kafcddata() {
 kaftopiccreate() {
 	kaftemplate "--create --topic $1 --partitions 1 --replication-factor 1 --if-not-exists"
 }
-
 kaftopicdescribe() {
 	kaftemplate "--describe --topic $1"
 }
