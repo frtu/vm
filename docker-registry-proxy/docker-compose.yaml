@@ -1,0 +1,36 @@
+---
+version: '3'
+services:
+  registry:
+    image: ${REGISTRY_IMAGE}
+    container_name: docker-registry
+    labels:
+      - "PROJECT=registry"
+    ports:
+      - 5000:5000
+    networks:
+      - docker-registry-network
+    environment:
+      - REGISTRY_STORAGE_DELETE_ENABLED=true
+      - REGISTRY_HTTP_SECRET=COMMON_SECRET
+    volumes:
+      - ./conf:/etc/docker/
+      - ~/.docker-registry/:/var/lib/registry
+  registry-ui:
+    image: ${REGISTRY_UI_IMAGE}
+    container_name: registry-ui
+    labels:
+      - "PROJECT=registry"
+    ports:
+      - 3000:80
+    networks:
+      - docker-registry-network
+    environment:
+      - ENV_DOCKER_REGISTRY_PORT=5000
+      - ENV_DOCKER_REGISTRY_HOST=registry
+    depends_on:
+      - registry
+networks:
+  docker-registry-network:
+    labels:
+      - "PROJECT=registry"

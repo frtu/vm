@@ -9,6 +9,17 @@ instscript() {
 	echo "$(curl -fsSL https://raw.githubusercontent.com/frtu/bash-fwk/master/autoinstaller4curl.bash)" | bash
 }
 
+echo "Type 'dckreg' to start Docker Registry Proxy"
+dckreg() {
+	echo "Make sure you have ** docker-compose ** installed !!"
+	(cd docker-registry-proxy && exec docker-compose up)
+}
+echo "Type 'dckregcatalog' to get catalog from Docker Registry"
+dckregcatalog() {
+	echo "Pulling catalog from Docker Registry => http://localhost:5000/v2/_catalog !!"
+	curl http://localhost:5000/v2/_catalog
+}
+
 echo "Type 'dckonvagrant' to start Docker on Vagrant"
 dckonvagrant() {
 	echo "Make sure you have ** vagrant ** installed !!"
