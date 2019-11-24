@@ -1,16 +1,18 @@
 ---
-version: '3'
+version: '2'
 services:
   registry:
     image: ${REGISTRY_IMAGE}
     container_name: docker-registry
-    labels:
-      - "PROJECT=registry"
+#    labels:
+#      - "PROJECT=registry"
     ports:
       - 5000:5000
     networks:
       - docker-registry-network
     environment:
+      # ONLY FOR RECEIVING IMAGES
+#      - REGISTRY_HTTP_ADDR=0.0.0.0:5000
       - REGISTRY_STORAGE_DELETE_ENABLED=true
       - REGISTRY_HTTP_SECRET=COMMON_SECRET
     volumes:
@@ -19,8 +21,8 @@ services:
   registry-ui:
     image: ${REGISTRY_UI_IMAGE}
     container_name: registry-ui
-    labels:
-      - "PROJECT=registry"
+#    labels:
+#      - "PROJECT=registry"
     ports:
       - 3000:80
     networks:
@@ -32,5 +34,6 @@ services:
       - registry
 networks:
   docker-registry-network:
-    labels:
-      - "PROJECT=registry"
+    driver: bridge
+#    labels:
+#      - "PROJECT=registry"
