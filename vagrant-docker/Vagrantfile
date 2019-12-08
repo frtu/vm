@@ -12,18 +12,19 @@ Vagrant.configure(2) do |config|
   #config.ssh.password = 'vagrant'
   #config.ssh.insert_key = 'true'
 
+  config.vm.synced_folder "~/git/bash-fwk", "/home/vagrant/git/bash-fwk"
+  config.vm.provision "shell", inline: <<-SHELL
+    if [[ -f "/home/vagrant/git/bash-fwk/setup.bash" ]]; then
+      (cd /home/vagrant/git/bash-fwk && . setup.bash)
+    fi
+  SHELL
+
   config.vm.synced_folder ".", "/vagrant"
 
   config.vm.synced_folder "~/VMs/_archives_", "/home/vagrant/VMs/_archives_"
   config.vm.provision :docker
   #config.vm.provision :docker_compose, yml: "/vagrant/docker-compose.yaml", compose_version: "1.22.0", rebuild: true, run: "always"
 
-  config.vm.synced_folder "~/git/bash-fwk", "/home/vagrant/git/bash-fwk"
-  config.vm.provision "shell", inline: <<-SHELL
-    if [[ -f "/home/vagrant/git/bash-fwk/setup.bash" ]]; then
-      cd /home/vagrant/git/bash-fwk && . setup.bash
-    fi
-  SHELL
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
