@@ -6,7 +6,7 @@ Vagrant.configure(2) do |config|
   #config.vm.box = "williamyeh/ubuntu-trusty64-docker"
 
   config.vm.box = "williamyeh/centos7-docker"
-  config.vm.hostname = "vagrant-docker-centos"
+  config.vm.hostname = "vagrant-docker-centos7"
 
   #config.ssh.username = 'root'
   #config.ssh.password = 'vagrant'
