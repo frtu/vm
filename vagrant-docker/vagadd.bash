@@ -1,8 +1,8 @@
-exportbox() {
+boxexport() {
   vagexport vagrant-docker-centos7 vagrant-docker-centos7.box
   vagexportkeyvbox
 }
-importbox() {
+boximport() {
   vagbadd vagrant-docker-centos7 vagrant-docker-centos7.box
 
   vagbls
