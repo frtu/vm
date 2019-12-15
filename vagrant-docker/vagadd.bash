@@ -1,7 +1,10 @@
+echo "Type 'boxexport' to export local vagrant-docker-centos7 & private_key into file"
 boxexport() {
   vagexport vagrant-docker-centos7 vagrant-docker-centos7.box
   vagexportkeyvbox
 }
+
+echo "Type 'boximport' to import vagrant-docker-centos7 into registry"
 boximport() {
   vagbadd vagrant-docker-centos7 vagrant-docker-centos7.box
 
