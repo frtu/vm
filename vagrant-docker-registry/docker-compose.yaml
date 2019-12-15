@@ -3,6 +3,7 @@ version: '2'
 services:
   registry:
     image: ${REGISTRY_IMAGE}
+    restart: always
     container_name: docker-registry
 #    labels:
 #      - "PROJECT=registry"
@@ -16,7 +17,7 @@ services:
       - REGISTRY_STORAGE_DELETE_ENABLED=true
       - REGISTRY_HTTP_SECRET=COMMON_SECRET
     volumes:
-      - ./conf:/etc/docker/
+      - ./conf/docker:/etc/docker/
       - ~/.docker-registry/:/var/lib/registry
   registry-ui:
     image: ${REGISTRY_UI_IMAGE}

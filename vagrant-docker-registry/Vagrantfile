@@ -40,6 +40,7 @@ Vagrant.configure(2) do |config|
   SHELL
 
   config.vm.synced_folder "./.minikube/", "/home/vagrant/.minikube/"
+  config.vm.synced_folder "./conf/docker/", "/etc/docker/"
 
   config.vm.synced_folder "~/VMs/_archives_", "/home/vagrant/VMs/_archives_"
   config.vm.synced_folder "~/VMs/__docker-registry__/", "/var/lib/registry/docker/registry/v2/"
