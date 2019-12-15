@@ -106,4 +106,6 @@ pip-log.txt
 
 */.vagrant
 */.minikube
-*/private_key
+**/private_key
+**/server.key
+**/server.crt
