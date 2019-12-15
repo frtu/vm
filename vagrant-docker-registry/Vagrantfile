@@ -45,10 +45,6 @@ Vagrant.configure(2) do |config|
   config.vm.synced_folder "~/VMs/_archives_", "/home/vagrant/VMs/_archives_"
   config.vm.synced_folder "~/VMs/__docker-registry__/", "/var/lib/registry/docker/registry/v2/"
 
-  #config.vm.provision "shell", inline:"sudo apt-get update"
-  #config.vm.provision :docker
-  #config.vm.provision :docker_compose, yml: "/vagrant/docker-compose.yaml", compose_version: "1.22.0", rebuild: true, run: "always"
-
   # Enable provisioning with a shell script. Additional provisioners such as
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
   # documentation for more information about their specific syntax and use.

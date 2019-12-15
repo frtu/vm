@@ -22,6 +22,8 @@ Vagrant.configure(2) do |config|
   config.vm.synced_folder ".", "/vagrant"
 
   config.vm.synced_folder "~/VMs/_archives_", "/home/vagrant/VMs/_archives_"
+
+  #config.vm.provision "shell", inline:"sudo apt-get update"
   #config.vm.provision :docker
   #config.vm.provision :docker_compose, yml: "/vagrant/docker-compose.yaml", compose_version: "1.22.0", rebuild: true, run: "always"
 
