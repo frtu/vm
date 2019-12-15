@@ -105,3 +105,5 @@ pip-log.txt
 .tox
 
 */.vagrant
+*/.minikube
+*/private_key

@@ -23,13 +23,26 @@ Vagrant.configure(2) do |config|
 
   config.vm.synced_folder ".", "/vagrant"
   config.vm.synced_folder "~/git/bash-fwk", "/home/vagrant/git/bash-fwk"
-  config.vm.synced_folder "~/VMs/_archives_", "/home/vagrant/VMs/_archives_"
 
   config.vm.provision "shell", inline: <<-SHELL
     if [[ -f "/home/vagrant/git/bash-fwk/setup.bash" ]]; then
       (cd /home/vagrant/git/bash-fwk && . setup.bash)
+      . /home/vagrant/.bash_profile
+
+      # https://computingforgeeks.com/install-and-configure-docker-registry-on-centos-7/
+      inst_docker_registry
+      dckregstart
+      dckregstatus
+
+      # https://www.cyberciti.biz/faq/sudo-append-data-text-to-file-on-linux-unix-macos/
+      # echo '127.0.0.1   local_domain' | sudo tee -a /etc/hosts
     fi
   SHELL
+
+  config.vm.synced_folder "./.minikube/", "/home/vagrant/.minikube/"
+
+  config.vm.synced_folder "~/VMs/_archives_", "/home/vagrant/VMs/_archives_"
+  config.vm.synced_folder "~/VMs/__docker-registry__/", "/var/lib/registry/docker/registry/v2/"
 
   #config.vm.provision "shell", inline:"sudo apt-get update"
   #config.vm.provision :docker
