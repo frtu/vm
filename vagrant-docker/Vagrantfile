@@ -22,9 +22,17 @@ Vagrant.configure(2) do |config|
   config.vm.synced_folder ".", "/vagrant"
 
   config.vm.synced_folder "~/VMs/_archives_", "/home/vagrant/VMs/_archives_"
-  config.vm.provision :docker
+  #config.vm.provision :docker
   #config.vm.provision :docker_compose, yml: "/vagrant/docker-compose.yaml", compose_version: "1.22.0", rebuild: true, run: "always"
 
+  config.vm.provision "shell", inline: <<-SHELL
+    # Install tools and register docker repo, based on https://docs.docker.com/install/linux/docker-ce/centos/
+    sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+    sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+    # Install local files
+    inst docker-ce-cli-19.03.5-3.el7.x86_64.rpm docker-ce-19.03.5-3.el7.x86_64.rpm containerd.io-1.2.10-3.2.el7.x86_64.rpm
+  SHELL
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
