@@ -2,6 +2,8 @@
 version: '2'
 services:
   nginx:
+    # Later on, can adopt :
+    # https://github.com/JrCs/docker-letsencrypt-nginx-proxy-companion
     image: nginx:alpine
     container_name: nginx
     restart: unless-stopped
