@@ -1,6 +1,7 @@
 echo "Type 'boxexport' to export local vagrant-docker-registry & private_key into file"
 boxexport() {
-  vagexport vagrant-docker-registry vagrant-docker-registry.box
+  local INSTANCE_NAME=${1:-vagrant-docker-registry}
+  vagexport ${INSTANCE_NAME} vagrant-docker-registry.box
   vagexportkeyvbox
 }
 
