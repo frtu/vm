@@ -109,3 +109,4 @@ pip-log.txt
 **/private_key
 **/server.key
 **/server.crt
+key.json
