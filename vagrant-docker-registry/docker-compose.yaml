@@ -33,6 +33,19 @@ services:
       - ENV_DOCKER_REGISTRY_HOST=registry
     depends_on:
       - registry
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+#    restart: unless-stopped
+#    tty: true
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - docker-registry-network
+    volumes:
+      - ./conf/registry/nginx/conf.d/:/etc/nginx/conf.d/
+      - ./conf/registry/nginx/certs/:/etc/nginx/certs/
 networks:
   docker-registry-network:
     driver: bridge
