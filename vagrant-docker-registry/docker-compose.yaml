@@ -8,17 +8,20 @@ services:
 #    labels:
 #      - "PROJECT=registry"
     ports:
-      - 5000:5000
+      - 443:5000
     networks:
       - docker-registry-network
     environment:
       # ONLY FOR RECEIVING IMAGES
-#      - REGISTRY_HTTP_ADDR=0.0.0.0:5000
+      - REGISTRY_HTTP_ADDR=0.0.0.0:5000
       - REGISTRY_STORAGE_DELETE_ENABLED=true
       - REGISTRY_HTTP_SECRET=COMMON_SECRET
+      - REGISTRY_HTTP_TLS_CERTIFICATE=/certs/server.crt
+      - REGISTRY_HTTP_TLS_KEY=/certs/server.key
     volumes:
       - ./conf/docker:/etc/docker/
-      - ~/.docker-registry/:/var/lib/registry
+      - ./conf/registry/certs/:/certs
+      - /var/lib/registry/:/var/lib/registry
   registry-ui:
     image: ${REGISTRY_UI_IMAGE}
     container_name: registry-ui
@@ -33,19 +36,6 @@ services:
       - ENV_DOCKER_REGISTRY_HOST=registry
     depends_on:
       - registry
-  nginx:
-    image: nginx:alpine
-    container_name: nginx
-#    restart: unless-stopped
-#    tty: true
-    ports:
-      - 80:80
-      - 443:443
-    networks:
-      - docker-registry-network
-    volumes:
-      - ./conf/registry/nginx/conf.d/:/etc/nginx/conf.d/
-      - ./conf/registry/nginx/certs/:/etc/nginx/certs/
 networks:
   docker-registry-network:
     driver: bridge

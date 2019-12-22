@@ -12,9 +12,10 @@ Vagrant.configure(2) do |config|
   #config.ssh.password = 'vagrant'
   #config.ssh.insert_key = 'true'
 
+  config.vm.network "forwarded_port", guest: 443, host: 443
   config.vm.network "forwarded_port", guest: 3000, host: 3000
   config.vm.network "forwarded_port", guest: 5000, host: 5000
-  config.vm.network "private_network", ip: "192.168.50.100"
+  #config.vm.network "private_network", ip: "192.168.50.100"
 
   config.vm.provider "virtualbox" do |v|
     v.memory = 1024
@@ -43,7 +44,7 @@ Vagrant.configure(2) do |config|
   config.vm.synced_folder "./conf/docker/", "/etc/docker/"
 
   config.vm.synced_folder "~/VMs/_archives_", "/home/vagrant/VMs/_archives_"
-  config.vm.synced_folder "~/VMs/__docker-registry__/", "/var/lib/registry/docker/registry/v2/"
+  config.vm.synced_folder "~/VMs/__docker-registry__", "/var/lib/registry/docker/registry/v2/"
 
   # Enable provisioning with a shell script. Additional provisioners such as
   # Puppet, Chef, Ansible, Salt, and Docker are also available. Please see the
