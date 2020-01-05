@@ -110,3 +110,5 @@ pip-log.txt
 **/server.key
 **/server.crt
 key.json
+.helm
+.kube

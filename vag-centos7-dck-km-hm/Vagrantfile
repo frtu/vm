@@ -1,0 +1,90 @@
+Vagrant.configure(2) do |config|
+  # Every Vagrant development environment requires a box. You can search for
+  # boxes at https://atlas.hashicorp.com/search.
+
+  config.vm.box = "centos/7"
+  config.vm.hostname = "vag-centos7-dck-km-hm"
+
+  config.vm.provider "virtualbox" do |v|
+    v.name = "vag-centos7-dck-km-hm"
+    v.cpus = 2
+  end
+
+  #config.ssh.username = 'root'
+  #config.ssh.password = 'vagrant'
+  #config.ssh.insert_key = 'true'
+
+  config.vm.synced_folder ".", "/vagrant"
+
+  config.vm.provision "shell", inline: <<-SHELL
+    sudo yum update
+    sudo yum -y install git
+
+    ### Install tools and register docker repo, based on https://docs.docker.com/install/linux/docker-ce/centos/
+    sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+    sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+    ### Remote install ###
+    # curl -fsSL https://get.docker.com/ | sh
+
+    ### Install local files ###
+    # inst docker-ce-cli-19.03.5-3.el7.x86_64.rpm docker-ce-19.03.5-3.el7.x86_64.rpm containerd.io-1.2.10-3.2.el7.x86_64.rpm
+
+    ### Activate vagrant as docker user
+    # sudo usermod -aG docker vagrant
+  SHELL
+
+  config.vm.synced_folder "~/git/bash-fwk", "/home/vagrant/git/bash-fwk"
+  config.vm.synced_folder "~/VMs/_archives_", "/home/vagrant/VMs/_archives_"
+  config.vm.synced_folder "~/.minikube/cache", "/root/.minikube/cache"
+
+  config.vm.provision "shell", inline: <<-SHELL
+    if [[ -f "/home/vagrant/git/bash-fwk/setup.bash" ]]; then
+      (cd /home/vagrant/git/bash-fwk && . setup.bash)
+      . /home/vagrant/.bash_profile
+
+      ### Auto Installer ###
+      enablelib docker-linux
+      dcksrvstart
+
+      inst_net
+      # inst_docker
+      inst_kubectl
+      inst_minikube
+      inst_helm
+
+      # https://www.cyberciti.biz/faq/sudo-append-data-text-to-file-on-linux-unix-macos/
+      # echo '127.0.0.1   local_domain' | sudo tee -a /etc/hosts
+    fi
+  SHELL
+
+  # Create a forwarded port mapping which allows access to a specific port
+  # within the machine from a port on the host machine. In the example below,
+  # accessing "localhost:8080" will access port 80 on the guest machine.
+  # config.vm.network "forwarded_port", guest: 80, host: 8080
+
+  # Create a private network, which allows host-only access to the machine
+  # using a specific IP.
+  # config.vm.network "private_network", ip: "192.168.33.10"
+  # config.vm.network "private_network", ip: "192.168.50.100"
+
+  # Create a public network, which generally matched to bridged network.
+  # Bridged networks make the machine appear as another physical device on
+  # your network.
+  # config.vm.network "public_network"
+
+  # Provider-specific configuration so you can fine-tune various
+  # backing providers for Vagrant. These expose provider-specific options.
+  # Example for VirtualBox:
+  #
+  # config.vm.provider "virtualbox" do |vb|
+  #   # Display the VirtualBox GUI when booting the machine
+  #   vb.gui = true
+  #
+  #   # Customize the amount of memory on the VM:
+  #   vb.memory = "1024"
+  # end
+  #
+  # View the documentation for the provider you are using for more
+  # information on available options.
+end
