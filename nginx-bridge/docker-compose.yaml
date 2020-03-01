@@ -4,8 +4,10 @@ services:
   nginx:
     # https://hub.docker.com/_/nginx/
     # OR alternative compiled with --with-stream https://hub.docker.com/r/tekn0ir/nginx-stream/
-    image: nginx:alpine
-    container_name: nginx-bridge
+    build: .
+    container_name: bridge
+#    image: nginx:alpine
+#    container_name: nginx-bridge
     restart: unless-stopped
     tty: true
     ports:
