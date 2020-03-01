@@ -1,0 +1,15 @@
+---
+version: '2'
+services:
+  nginx:
+    # https://hub.docker.com/_/nginx/
+    # OR alternative compiled with --with-stream https://hub.docker.com/r/tekn0ir/nginx-stream/
+    image: nginx:alpine
+    container_name: nginx
+    restart: unless-stopped
+    tty: true
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./conf/nginx/:/etc/nginx/
