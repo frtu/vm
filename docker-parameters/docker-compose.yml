@@ -1,0 +1,23 @@
+version: '3'
+services:
+  docker-compose-env:
+    build:
+      context: .
+      dockerfile: Dockerfile.env
+      args:
+        SIMPLE_ARG: args_compose
+        DEFAULT_TEXT: env_compose
+    environment:
+      SIMPLE_ARG: new_args_compose
+      DEFAULT_TEXT: new_env_compose
+
+  docker-compose-entrypoint:
+    build:
+      context: .
+      dockerfile: Dockerfile.entrypoint
+    entrypoint:
+      - echo
+      - Bonjour
+    command:
+      - le
+      - monde
