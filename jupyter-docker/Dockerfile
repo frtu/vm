@@ -2,7 +2,7 @@
 FROM continuumio/anaconda3:2020.07
 
 # Creating directories
-RUN mkdir -p /data && mkdir -p /notebooks/local
+RUN mkdir -p /data /notebooks/local
 
 # Setting up volumes
 VOLUME ["/data", "/notebooks/local"]
