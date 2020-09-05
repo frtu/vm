@@ -12,6 +12,7 @@ services:
     networks:
       - docker-registry-network
     environment:
+      # https://docs.docker.com/registry/configuration/
       # ONLY FOR RECEIVING IMAGES
       - REGISTRY_HTTP_ADDR=0.0.0.0:5000
       - REGISTRY_STORAGE_DELETE_ENABLED=true
@@ -19,6 +20,7 @@ services:
       - REGISTRY_HTTP_TLS_CERTIFICATE=/certs/server.crt
       - REGISTRY_HTTP_TLS_KEY=/certs/server.key
     volumes:
+      # https://kubernetes.io/docs/concepts/containers/images/
       - ./conf/docker:/etc/docker/
       - ./conf/registry/certs/:/certs
       - /var/lib/registry/:/var/lib/registry
