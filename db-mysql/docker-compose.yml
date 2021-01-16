@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  mysql_server:
+    image: mysql:8.0.22
+    container_name: mysql
+    hostname: mysql
+    restart: always
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: 'root'
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'pass'
+
+      ## Use % to allow remote access to all addresses. 
+      ## Generally not recommended by some people to allow for root.
+      MYSQL_ROOT_HOST: "%"
+
+      # This allows ip ranges from 192.168.0.49 to 192.168.0.54 to connect to root
+      #MYSQL_ROOT_HOST: "192.168.0.49/255.255.255.248"
+    healthcheck:
+      test: "mysqladmin ping -h localhost"
+      interval: 1s
+      timeout: 1s
+      retries: 60
+    networks:
+      - db-mysql
+
+  phpmyadmin:
+    container_name: phpmyadmin
+    image: phpmyadmin/phpmyadmin:4.9
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      MYSQL_USER: "root"
+      MYSQL_PASSWORD: "root"
+      MYSQL_ROOT_PASSWORD: "root"
+      PMA_HOST: "mysql"
+    depends_on:
+      - mysql_server
+    networks:
+      - db-mysql
+
+networks:
+  db-mysql:
