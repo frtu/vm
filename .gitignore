@@ -112,3 +112,4 @@ pip-log.txt
 key.json
 .helm
 .kube
+db-mysql/data

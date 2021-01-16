@@ -8,6 +8,10 @@ services:
     restart: always
     ports:
       - 3306:3306
+    #volumes:
+      # MAKE SURE YOU RUN mysqlstart FROM run_scripts.bash TO INIT DATA FOLDER
+      # Use this option to persist the MySQL DBs in a shared volume.
+    #  - $PWD/data:/var/lib/mysql:rw,delegated
     environment:
       MYSQL_ROOT_PASSWORD: 'root'
       MYSQL_DATABASE: 'db'
