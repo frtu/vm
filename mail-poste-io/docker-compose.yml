@@ -1,0 +1,23 @@
+version: '3'
+
+services:
+  mail_server:
+    image: analogic/poste.io:2.2.29
+    # container_name: mail_server
+    # hostname: mail_server
+    restart: always
+    ports:
+      - 25:25
+      - 80:80
+      - 443:443
+      - 110:110
+      - 143:143
+      - 465:465
+      - 587:587
+      - 993:993
+      - 995:995
+    volumes:
+      - $PWD/data:/data
+    environment:
+      TZ: 'Asia/Shanghai'
+      HTTPS: 'OFF'
