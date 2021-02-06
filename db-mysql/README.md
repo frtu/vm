@@ -10,6 +10,7 @@ It also register many bash commands :
 * ```mysqlstart``` to create data folder and start mysql
 * ```mysqlstop``` to stop mysql
 * ```mysqlrm``` to delete mysql
+* ```mysqlbash``` to open a bash cmd in mysql
 
 ## Troubleshooting
 
@@ -20,4 +21,4 @@ If you use encounter ```Public Key Retrieval is not allowed``` when connecting w
 * useSSL=false
 * allowPublicKeyRetrieval=true
 
-![Fix Error - Public Key Retrieval](images/fix_error_key_retrieval.png)
+![Fix Error - Public Key Retrieval](docs/fix_error_key_retrieval.png)
