@@ -7,10 +7,9 @@ BASH_CMD=bash
 echo "Type 'mysqlstart' to create data folder and start ${CONTAINER_NAME}"
 mysqlstart() {
     mkdir -p data
-    echo "docker run --rm --name ${CONTAINER_NAME} -p 3306:3306 -p 8080:80 -v $PWD/data:/var/lib/mysql -e \"MYSQL_ROOT_PASSWORD=pass\" -d ${IMAGE_NAME}"
+    echo "docker run --rm --name ${CONTAINER_NAME} -p 3306:3306 -v $PWD/data:/var/lib/mysql -e \"MYSQL_ROOT_PASSWORD=pass\" -d ${IMAGE_NAME}"
     docker run --rm --name ${CONTAINER_NAME} \
         -p 3306:3306 \
-        -p 8080:80 \
         -v $PWD/data:/var/lib/mysql \
         -e "MYSQL_ROOT_PASSWORD=pass" -d\
         ${IMAGE_NAME}
