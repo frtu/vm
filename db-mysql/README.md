@@ -40,4 +40,4 @@ If you use encounter ```Public Key Retrieval is not allowed``` when connecting w
 * useSSL=false
 * allowPublicKeyRetrieval=true
 
-![Fix Error - Public Key Retrieval](docs/fix_error_key_retrieval.png)
+![Fix Error - Public Key Retrieval](docs/fix_error_key_retrieval-img.png)
