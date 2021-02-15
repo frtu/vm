@@ -37,7 +37,7 @@ services:
     image: phpmyadmin/phpmyadmin:4.9
     restart: always
     ports:
-      - 8080:80
+      - 8006:80
     environment:
       MYSQL_USER: "root"
       MYSQL_PASSWORD: "root"
