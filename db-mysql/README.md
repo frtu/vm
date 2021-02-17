@@ -42,7 +42,17 @@ MYSQL_USER: 'user'
 MYSQL_PASSWORD: 'pass'
 ```
 
-## Prepare DB
+## Auto init DB
+
+Put your sql files into ```./db/init_sql``` :
+
+* Create tables DDL scripts
+* Create data DML scripts
+
+
+## Manual init DB
+
+### Init schema manually
 
 * Login into phpmysql : [http://localhost:8006/](http://localhost:8006/) (root / root)
 * Click on the ```SQL``` tab
@@ -54,6 +64,30 @@ CREATE TABLE IF NOT EXISTS table_name(
     id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     content VARCHAR(255) NOT NULL
 );
+```
+
+Enhance missing schema by adding primary key :
+
+```
+alter table <table_name> 
+	add column `id` int(10) unsigned primary KEY AUTO_INCREMENT;
+```
+
+### Import data from CSV
+
+Open a bash into docker & login into mysql :
+
+* Login using (root/root) into MYSQL_DATABASE ```db``` : ```mysql -u root -p db```
+
+In mysql prompt, import CSV separated with ```,``` and with CSV header (skip first row) :
+
+```
+LOAD DATA INFILE '/path/to/file.csv'  
+	INTO TABLE <table_name> 
+	FIELDS 
+		TERMINATED BY ','  
+	LINES TERMINATED BY '\n' 
+IGNORE 1 ROWS;
 ```
 
 ## Troubleshooting
