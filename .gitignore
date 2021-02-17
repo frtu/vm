@@ -114,3 +114,4 @@ key.json
 .kube
 db-mysql/data
 mail-poste-io/data
+db-mysql/db/data

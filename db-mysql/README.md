@@ -84,11 +84,12 @@ In mysql prompt, import CSV separated with ```,``` and with CSV header (skip fir
 ```
 LOAD DATA INFILE '/path/to/file.csv'  
 	INTO TABLE <table_name> 
-	FIELDS 
-		TERMINATED BY ','  
+	FIELDS TERMINATED BY ',' ENCLOSED BY '"'
 	LINES TERMINATED BY '\n' 
 IGNORE 1 ROWS;
 ```
+
+See also [https://dev.mysql.com/doc/refman/8.0/en/load-data.html](https://dev.mysql.com/doc/refman/8.0/en/load-data.html)
 
 ## Troubleshooting
 
