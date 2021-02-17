@@ -1,6 +1,7 @@
 version: '3'
 
 services:
+  # https://github.com/docker-library/docs/tree/master/mysql
   mysql_server:
     image: mysql:8.0.22
     container_name: mysql
@@ -8,10 +9,11 @@ services:
     restart: always
     ports:
       - 3306:3306
-    #volumes:
+    volumes:
       # MAKE SURE YOU RUN mysqlstart FROM run_scripts.bash TO INIT DATA FOLDER
       # Use this option to persist the MySQL DBs in a shared volume.
-    #  - $PWD/data:/var/lib/mysql:rw,delegated
+      - $PWD/db/data:/var/lib/mysql
+      - $PWD/db/init_sql:/docker-entrypoint-initdb.d
     environment:
       MYSQL_ROOT_PASSWORD: 'root'
       MYSQL_DATABASE: 'db'

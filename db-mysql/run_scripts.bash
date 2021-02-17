@@ -4,13 +4,16 @@ IMAGE_NAME=mysql:8.0.22
 CONTAINER_NAME=mysql-base
 BASH_CMD=bash
 
+mysqlinit() {
+    mkdir -p db/data db/init_sql
+}
+
 echo "Type 'mysqlstart' to create data folder and start ${CONTAINER_NAME}"
 mysqlstart() {
-    mkdir -p data
     echo "docker run --rm --name ${CONTAINER_NAME} -p 3306:3306 -v $PWD/data:/var/lib/mysql -e \"MYSQL_ROOT_PASSWORD=pass\" -d ${IMAGE_NAME}"
     docker run --rm --name ${CONTAINER_NAME} \
         -p 3306:3306 \
-        -v $PWD/data:/var/lib/mysql \
+        -v $PWD/db/data:/var/lib/mysql \
         -e "MYSQL_ROOT_PASSWORD=pass" -d\
         ${IMAGE_NAME}
     
@@ -34,4 +37,5 @@ mysqlbash() {
     docker exec -it ${CONTAINER_NAME} ${BASH_CMD} -l
 }
 
+mysqlinit
 mysqlstart
