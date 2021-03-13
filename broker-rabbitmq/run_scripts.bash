@@ -1,13 +1,13 @@
 # https://hub.docker.com/_/rabbitmq
 
-IMAGE_NAME=3.8.14-management
 CONTAINER_NAME=rabbitmq
+IMAGE_NAME=${CONTAINER_NAME}:3.8.14-management
 BASH_CMD=bash
 
 echo "Type 'rabbitmqstart' to create data folder and start ${CONTAINER_NAME}"
 rabbitmqstart() {
-    echo "docker run --rm --name ${CONTAINER_NAME} -p 5672:5672 -p 15672:15672 -v $PWD/${CONTAINER_NAME}/data:/var/lib/rabbitmq/mnesia/rabbit@${CONTAINER_NAME} -v $PWD/${CONTAINER_NAME}/logs:/var/log/rabbitmq/log -d ${IMAGE_NAME}"
-    docker run --rm --name ${CONTAINER_NAME} \
+    echo "docker run --rm --name ${CONTAINER_NAME} --hostname ${CONTAINER_NAME} -p 5672:5672 -p 15672:15672 -v $PWD/${CONTAINER_NAME}/data:/var/lib/rabbitmq/mnesia/rabbit@${CONTAINER_NAME} -v $PWD/${CONTAINER_NAME}/logs:/var/log/rabbitmq/log -d ${IMAGE_NAME}"
+    docker run --rm --name ${CONTAINER_NAME}  --hostname ${CONTAINER_NAME} \
         -p 5672:5672 \
         -p 15672:15672 \
         -v $PWD/${CONTAINER_NAME}/data:/var/lib/rabbitmq/mnesia/rabbit@${CONTAINER_NAME} \
