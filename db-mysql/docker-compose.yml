@@ -2,10 +2,10 @@ version: '3'
 
 services:
   # https://github.com/docker-library/docs/tree/master/mysql
-  mysql_server:
+  database:
     image: mysql:8.0.22
     container_name: mysql
-    hostname: mysql
+    hostname: database
     restart: always
     ports:
       - 3306:3306
@@ -15,10 +15,10 @@ services:
       - $PWD/db/data:/var/lib/mysql
       - $PWD/db/init_sql:/docker-entrypoint-initdb.d
     environment:
-      MYSQL_ROOT_PASSWORD: 'root'
-      MYSQL_DATABASE: 'db'
-      MYSQL_USER: 'user'
-      MYSQL_PASSWORD: 'pass'
+      MYSQL_ROOT_PASSWORD: ${DB_ADMIN_PASSWORD:-admin}
+      MYSQL_DATABASE: ${DB_NAME:-db}
+      MYSQL_USER: ${APP_USER:-username}
+      MYSQL_PASSWORD: ${APP_PASSWORD:-pass}
 
       ## Use % to allow remote access to all addresses. 
       ## Generally not recommended by some people to allow for root.
@@ -40,23 +40,23 @@ services:
       timeout: 1s
       retries: 60
     networks:
-      - db-mysql
+      - db-network
 
   phpmyadmin:
     container_name: phpmyadmin
     image: phpmyadmin/phpmyadmin:4.9
     restart: always
     ports:
-      - 8006:80
+      - ${DB_UI_PORT:-8008}:80
     environment:
-      MYSQL_USER: "root"
-      MYSQL_PASSWORD: "root"
-      MYSQL_ROOT_PASSWORD: "root"
-      PMA_HOST: "mysql"
+      MYSQL_ROOT_PASSWORD: ${DB_ADMIN_PASSWORD:-admin}
+      MYSQL_USER: ${APP_USER:-username}
+      MYSQL_PASSWORD: ${APP_PASSWORD:-pass}
+      PMA_HOST: database
     depends_on:
-      - mysql_server
+      - database
     networks:
-      - db-mysql
+      - db-network
 
 networks:
-  db-mysql:
+  db-network:

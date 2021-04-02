@@ -10,7 +10,7 @@ Start with ```docker-compose up```
 You will be able to have :
 
 * mysql : port ```3306``` default database ```db```
-* phpmysql : [http://localhost:8006/](http://localhost:8006/) (root / root)
+* phpmysql : [http://localhost:8008/](http://localhost: 8008/) (root / admin)
 
 ### Option 2 - Start & Stop command lines
 
@@ -29,16 +29,16 @@ It also register many bash commands :
 
 Connect to mysql using port ```3306```
 
-If you start with ```docker-compose up```, you will also have access to phpmyadmin at [http://localhost:8006/](http://localhost:8006/)
+If you start with ```docker-compose up```, you will also have access to phpmyadmin at [http://localhost:8008/](http://localhost:8008/)
 
 ### Changing password
 
 Edit docker-compose.yml and change the environment properties :
 
 ```
-MYSQL_ROOT_PASSWORD: 'root'
+MYSQL_ROOT_PASSWORD: 'admin'
 
-MYSQL_USER: 'user'
+MYSQL_USER: 'username'
 MYSQL_PASSWORD: 'pass'
 ```
 
@@ -54,7 +54,7 @@ Put your sql files into ```./db/init_sql``` :
 
 ### Init schema manually
 
-* Login into phpmysql : [http://localhost:8006/](http://localhost:8006/) (root / root)
+* Login into phpmysql : [http://localhost:8008/](http://localhost:8008/) (root / admin)
 * Click on the ```SQL``` tab
 * Run the following table creation :
 
@@ -90,6 +90,10 @@ IGNORE 1 ROWS;
 ```
 
 See also [https://dev.mysql.com/doc/refman/8.0/en/load-data.html](https://dev.mysql.com/doc/refman/8.0/en/load-data.html)
+
+## Connect using DBeaver
+
+![DBeaver Config](docs/DBeaver-config.png)
 
 ## Troubleshooting
 

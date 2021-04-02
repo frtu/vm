@@ -1,4 +1,4 @@
-# https://hub.docker.com/_/mysql
+# https://hub.docker.com/_/mysql?tab=tags&page=1&ordering=last_updated
 
 IMAGE_NAME=mysql:8.0.22
 CONTAINER_NAME=mysql-base
@@ -10,11 +10,12 @@ mysqlinit() {
 
 echo "Type 'mysqlstart' to create data folder and start ${CONTAINER_NAME}"
 mysqlstart() {
-    echo "docker run --rm --name ${CONTAINER_NAME} -p 3306:3306 -v $PWD/data:/var/lib/mysql -e \"MYSQL_ROOT_PASSWORD=pass\" -d ${IMAGE_NAME}"
+    echo "docker run --rm --name ${CONTAINER_NAME} -p 3306:3306 -v $PWD/data:/var/lib/mysql -e \"MYSQL_ROOT_PASSWORD=admin\" -e \"MYSQL_DATABASE=db\" -d ${IMAGE_NAME}"
     docker run --rm --name ${CONTAINER_NAME} \
         -p 3306:3306 \
-        -v $PWD/db/data:/var/lib/mysql \
-        -e "MYSQL_ROOT_PASSWORD=pass" -d\
+        -e "MYSQL_ROOT_PASSWORD=admin" \
+        -e "MYSQL_DATABASE=db" \
+        -v $PWD/db/data:/var/lib/mysql -d\
         ${IMAGE_NAME}
     
     echo "docker logs ${CONTAINER_NAME} --follow"
