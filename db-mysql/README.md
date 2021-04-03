@@ -10,7 +10,7 @@ Start with ```docker-compose up```
 You will be able to have :
 
 * mysql : port ```3306``` default database ```db```
-* phpmysql : [http://localhost:8008/](http://localhost: 8008/) (root / admin)
+* phpmysql : [http://localhost:8008/](http://localhost:8008/) (root / admin)
 
 ### Option 2 - Start & Stop command lines
 
