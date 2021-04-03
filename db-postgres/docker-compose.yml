@@ -1,0 +1,44 @@
+version: '3'
+
+# https://renzolucioni.com/postgres-docker-compose/
+services:
+  # https://hub.docker.com/_/postgres?tab=tags&page=1&ordering=last_updated
+  database:
+    image: postgres:12.6
+    container_name: postgres
+    hostname: database
+    restart: always
+    ports:
+      - 5432:5432
+    volumes:
+      - $PWD/db/data:/var/lib/postgresql/data
+      - $PWD/db/init:/docker-entrypoint-initdb.d/
+    environment:
+      POSTGRES_PASSWORD: ${DB_ADMIN_PASSWORD:-admin}
+      POSTGRES_USER: ${DB_ADMIN:-root}
+      POSTGRES_DB: ${DB_NAME:-database}
+      APP_DB_NAME: ${APP_DB_NAME:-db}
+      APP_DB_USER: ${APP_USER:-username}
+      APP_DB_PASS: ${APP_PASSWORD:-pass}
+      # https://www.postgresql.org/docs/current/auth-trust.html
+      POSTGRES_HOST_AUTH_METHOD: trust # allow all connections without a password. This is *not* recommended for prod
+    networks:
+      - db-network
+
+  pgadmin:
+    image: dpage/pgadmin4:5.1
+    container_name: pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - ${DB_UI_PORT:-8008}:80
+    depends_on:
+      - database
+    networks:
+      - db-network
+
+networks:
+  db-network:

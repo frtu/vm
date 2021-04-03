@@ -112,6 +112,6 @@ pip-log.txt
 key.json
 .helm
 .kube
-db-mysql/data
 mail-poste-io/data
 db-mysql/db/data
+db-postgres/db/data
