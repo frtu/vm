@@ -14,14 +14,17 @@ services:
       - $PWD/db/data:/var/lib/postgresql/data
       - $PWD/db/init:/docker-entrypoint-initdb.d/
     environment:
-      POSTGRES_PASSWORD: ${DB_ADMIN_PASSWORD:-admin}
       POSTGRES_USER: ${DB_ADMIN:-root}
-      POSTGRES_DB: ${DB_NAME:-database}
+      POSTGRES_PASSWORD: ${DB_ADMIN_PASSWORD:-admin}
+      ## During INIT, allows to bootstrap an empty database
+      # POSTGRES_DB: ${DB_NAME:-postgres}
       APP_DB_NAME: ${APP_DB_NAME:-db}
       APP_DB_USER: ${APP_USER:-username}
       APP_DB_PASS: ${APP_PASSWORD:-pass}
       # https://www.postgresql.org/docs/current/auth-trust.html
       POSTGRES_HOST_AUTH_METHOD: trust # allow all connections without a password. This is *not* recommended for prod
+      ## To modify the storage location. By default /var/lib/postgresql/data
+      # PGDATA: "/var/lib/postgresql/data"
     networks:
       - db-network
 
@@ -30,8 +33,9 @@ services:
     container_name: pgadmin
     restart: always
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-admin@pgadmin.org}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_DEFAULT_EMAIL: ${ADMIN_UI_LOGIN:-admin@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${ADMIN_UI_PASSWORD:-admin}
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: ${ADMIN_UI_REQUIRE_PASSWORD:-False}
       PGADMIN_CONFIG_SERVER_MODE: 'False'
     ports:
       - ${DB_UI_PORT:-8008}:80

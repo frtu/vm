@@ -33,6 +33,9 @@ If you start with ```docker-compose up```, you will also have access to pgadmin 
 
 ![PGAdmin Config](docs/pgadmin-config.png)
 
+* [pgadmin simple guide](https://thedbadmin.com/how-to-connect-postgresql-database-from-pgadmin/)
+* [pgadmin official connection guide](https://www.pgadmin.org/docs/pgadmin4/development/connecting.html)
+
 ### Changing password
 
 Edit docker-compose.yml and change the environment properties :
