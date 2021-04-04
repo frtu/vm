@@ -36,5 +36,18 @@ postgresbash() {
     docker exec -it ${CONTAINER_NAME} ${BASH_CMD} -l
 }
 
+echo "Type 'postgresdbcreate' to create a DB using parameters : postgresdbcreate APP_DB_NAME [TARGET_CONTAINER_NAME]"
+postgresdbcreate() {
+    local APP_DB_NAME=$1
+    local TARGET_CONTAINER_NAME=${2:-$CONTAINER_NAME}
+
+    if [[ -z $APP_DB_NAME ]]; then 
+        echo "Usage : postgresdbcreate [APP_DB_NAME] " >&2
+        return 1
+    fi    
+    echo "docker exec ${TARGET_CONTAINER_NAME} psql -U root -c \"CREATE DATABASE ${APP_DB_NAME}\""
+    docker exec ${TARGET_CONTAINER_NAME} psql -U root -c "CREATE DATABASE ${APP_DB_NAME}"
+}
+
 postgresinit
 postgresstart
