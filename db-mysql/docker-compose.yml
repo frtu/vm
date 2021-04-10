@@ -4,11 +4,11 @@ services:
   # https://github.com/docker-library/docs/tree/master/mysql
   database:
     image: mysql:8.0.22
-    container_name: mysql
+    # container_name: mysql
     hostname: database
     restart: always
     ports:
-      - 3306:3306
+      - ${DB_PORT:-3306}:3306
     volumes:
       # MAKE SURE YOU RUN mysqlstart FROM run_scripts.bash TO INIT DATA FOLDER
       # Use this option to persist the MySQL DBs in a shared volume.
@@ -43,7 +43,7 @@ services:
       - db-network
 
   phpmyadmin:
-    container_name: phpmyadmin
+    # container_name: phpmyadmin
     image: phpmyadmin/phpmyadmin:4.9
     restart: always
     ports:
