@@ -5,21 +5,22 @@ services:
   # https://hub.docker.com/_/postgres?tab=tags&page=1&ordering=last_updated
   database:
     image: postgres:12.6
-    container_name: postgres
+    #container_name: postgres
     hostname: database
     restart: always
     ports:
-      - 5432:5432
+      - ${DB_PORT:-5432}:5432
     volumes:
       - $PWD/db/data:/var/lib/postgresql/data
       - $PWD/db/init:/docker-entrypoint-initdb.d/
     environment:
-      POSTGRES_USER: ${DB_ADMIN:-root}
+      POSTGRES_USER: ${DB_ADMIN_USER:-root}
       POSTGRES_PASSWORD: ${DB_ADMIN_PASSWORD:-admin}
-      ## During INIT, allows to bootstrap an empty database
-      # POSTGRES_DB: ${DB_NAME:-postgres}
+      ## During INIT, allows to bootstrap an empty database for all user creation
+      POSTGRES_DB: ${DB_NAME:-postgres}
+      APP_DB_SCHEMA: ${APP_DB_SCHEMA:-public}
       APP_DB_NAME: ${APP_DB_NAME:-db}
-      APP_DB_USER: ${APP_USER:-username}
+      APP_DB_USER: ${APP_USER:-user}
       APP_DB_PASS: ${APP_PASSWORD:-pass}
       # https://www.postgresql.org/docs/current/auth-trust.html
       POSTGRES_HOST_AUTH_METHOD: trust # allow all connections without a password. This is *not* recommended for prod
@@ -30,7 +31,7 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4:5.1
-    container_name: pgadmin
+    #container_name: pgadmin
     restart: always
     environment:
       PGADMIN_DEFAULT_EMAIL: ${ADMIN_UI_LOGIN:-admin@pgadmin.org}
