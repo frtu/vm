@@ -28,6 +28,8 @@ echo "Type 'postgresrm' to delete ${CONTAINER_NAME}"
 postgresrm() {
     echo "docker rm ${CONTAINER_NAME}"
     docker rm ${CONTAINER_NAME}
+
+    rm -Rf docker/db/data/
 }
 
 echo "Type 'postgresbash' to open a ${BASH_CMD} ${CONTAINER_NAME}"
