@@ -12,8 +12,9 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 
   \connect ${APP_DB_NAME} ${POSTGRES_USER};
 
-  CREATE EXTENSION "uuid-ossp";
-  CREATE EXTENSION pg_stat_statements;
+  CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+  CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+  CREATE EXTENSION IF NOT EXISTS "pg_stat_statements";
 
   CREATE SCHEMA IF NOT EXISTS ${APP_DB_SCHEMA};
   
