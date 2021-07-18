@@ -15,7 +15,7 @@ services:
       - $PWD/db/data:/var/lib/mysql
       - $PWD/db/init_sql:/docker-entrypoint-initdb.d
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ADMIN_PASSWORD:-admin}
+      MYSQL_ROOT_PASSWORD: ${ADMIN_PASSWORD:-admin}
       MYSQL_DATABASE: ${DB_NAME:-db}
       MYSQL_USER: ${APP_USER:-username}
       MYSQL_PASSWORD: ${APP_PASSWORD:-pass}
@@ -49,7 +49,7 @@ services:
     ports:
       - ${DB_UI_PORT:-8008}:80
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ADMIN_PASSWORD:-admin}
+      MYSQL_ROOT_PASSWORD: ${ADMIN_PASSWORD:-admin}
       MYSQL_USER: ${APP_USER:-username}
       MYSQL_PASSWORD: ${APP_PASSWORD:-pass}
       PMA_HOST: database

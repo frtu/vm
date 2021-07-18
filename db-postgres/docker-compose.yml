@@ -14,8 +14,8 @@ services:
       - $PWD/db/data:/var/lib/postgresql/data
       - $PWD/db/init:/docker-entrypoint-initdb.d/
     environment:
-      POSTGRES_USER: ${DB_ADMIN_USER:-root}
-      POSTGRES_PASSWORD: ${DB_ADMIN_PASSWORD:-admin}
+      POSTGRES_USER: ${ADMIN_USER:-root}
+      POSTGRES_PASSWORD: ${ADMIN_PASSWORD:-admin}
       ## During INIT, allows to bootstrap an empty database for all user creation
       POSTGRES_DB: ${DB_NAME:-postgres}
       APP_DB_SCHEMA: ${APP_DB_SCHEMA:-public}
