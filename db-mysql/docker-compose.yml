@@ -2,7 +2,7 @@ version: '3'
 
 services:
   # https://github.com/docker-library/docs/tree/master/mysql
-  database:
+  mysql:
     image: mysql:8.0.22
     # container_name: mysql
     hostname: database
@@ -54,7 +54,7 @@ services:
       MYSQL_PASSWORD: ${APP_PASSWORD:-pass}
       PMA_HOST: database
     depends_on:
-      - database
+      - mysql
     networks:
       - db-network
 

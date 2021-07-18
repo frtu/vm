@@ -3,7 +3,7 @@ version: '3'
 # https://renzolucioni.com/postgres-docker-compose/
 services:
   # https://hub.docker.com/_/postgres?tab=tags&page=1&ordering=last_updated
-  database:
+  postgres:
     image: postgres:12.6
     #container_name: postgres
     hostname: database
@@ -28,6 +28,11 @@ services:
       # PGDATA: "/var/lib/postgresql/data"
     networks:
       - db-network
+   healthcheck:
+     test: [ "CMD", "pg_isready" ]
+     timeout: 45s
+     interval: 10s
+     retries: 10
 
   pgadmin:
     image: dpage/pgadmin4:5.1
@@ -41,7 +46,7 @@ services:
     ports:
       - ${DB_UI_PORT:-8008}:80
     depends_on:
-      - database
+      - postgres
     networks:
       - db-network
 
