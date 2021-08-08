@@ -13,6 +13,7 @@ services:
     volumes:
       - $PWD/db/data:/var/lib/postgresql/data
       - $PWD/db/init:/docker-entrypoint-initdb.d/
+      # - $PWD/db/init_sql/schema.sql:/docker-entrypoint-initdb.d/schema.sql
     environment:
       POSTGRES_USER: ${ADMIN_USER:-root}
       POSTGRES_PASSWORD: ${ADMIN_PASSWORD:-admin}
@@ -29,7 +30,7 @@ services:
     networks:
       - db-network
    healthcheck:
-     test: [ "CMD", "pg_isready" ]
+     test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "admin" ]
      timeout: 45s
      interval: 10s
      retries: 10
@@ -49,6 +50,11 @@ services:
       - postgres
     networks:
       - db-network
+    # https://githubmemory.com/repo/asaikali/docker-compose-postgres
+    #entrypoint:
+    #  - "/bin/sh"
+    #  - "-c"
+    #  - "/bin/echo 'postgres:5432:*:postgres:password' > /tmp/pgpassfile && chmod 600 /tmp/pgpassfile && /entrypoint.sh"
 
 networks:
   db-network:

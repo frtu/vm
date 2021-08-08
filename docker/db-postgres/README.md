@@ -9,7 +9,7 @@ Start with ```docker-compose up```
 
 You will be able to have :
 
-* postgres : port ```5432``` default database ```db```
+* postgres : port ```5432``` default database ```postgres```
 * pgadmin : [http://localhost:8008/](http://localhost:8008/) (root / admin)
 
 ### Option 2 - Start & Stop command lines

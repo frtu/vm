@@ -104,14 +104,16 @@ pip-log.txt
 .coverage
 .tox
 
-*/.vagrant
-*/.minikube
+vagrant/*/.vagrant
+**/.minikube
 **/private_key
 **/server.key
 **/server.crt
-key.json
-.helm
-.kube
-mail-poste-io/data
-db-mysql/db/data
-db-postgres/db/data
+**/key.json
+**/.helm
+**/.kube
+docker/mail-poste-io/data
+docker/db-mysql/db/data
+docker/broker-rabbitmq/rabbitmq/data
+docker/broker-rabbitmq/rabbitmq/logs
+docker/db-postgres/db/data

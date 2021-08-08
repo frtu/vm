@@ -1,6 +1,7 @@
-Docker platform for Confluent Open source Kafka & Schema registry distribution
+VM
 ===
 
-Start Docker Compose with :
+Misc :
 
-	. start-docker.bash
+* docker image
+* vagrant
