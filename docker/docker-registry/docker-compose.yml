@@ -1,0 +1,52 @@
+---
+version: '3'
+services:
+  registry:
+    image: registry:2
+    restart: always
+    container_name: docker-registry
+    ports:
+      - 5000:5000
+    networks:
+      - docker-registry-network
+    volumes:
+      - /var/lib/registry/:/var/lib/registry
+#      # https://kubernetes.io/docs/concepts/containers/images/
+#      - ./conf/docker:/etc/docker/
+#      - ./conf/registry/certs/:/certs
+#      ## Adding AUTH
+#      - ./auth:/auth
+#    environment:
+#      # https://docs.docker.com/registry/configuration/
+#      ## ONLY FOR RECEIVING IMAGES
+#      - REGISTRY_HTTP_ADDR=0.0.0.0:5000
+#      - REGISTRY_STORAGE_DELETE_ENABLED=true
+#      - REGISTRY_HTTP_SECRET=COMMON_SECRET
+#      - REGISTRY_HTTP_TLS_CERTIFICATE=/certs/server.crt
+#      - REGISTRY_HTTP_TLS_KEY=/certs/server.key
+#      ## Adding AUTH
+#      - REGISTRY_AUTH: htpasswd
+#      - REGISTRY_AUTH_HTPASSWD_REALM: Registry-Realm
+#      - REGISTRY_AUTH_HTPASSWD_PATH: /auth/registry.passwd
+
+  registry-ui:
+    image: parabuzzle/craneoperator:2.2.5
+    restart: always
+    container_name: registry-ui
+    ports:
+      - 5080:80
+    environment:
+      - REGISTRY_HOST=docker-registry
+      - REGISTRY_PORT=5000
+      - REGISTRY_PROTOCOL=http
+      - SSL_VERIFY=false
+      - USERNAME=admin
+      - PASSWORD=admin
+    depends_on:
+      - registry
+    networks:
+      - docker-registry-network
+      
+networks:
+  docker-registry-network:
+    driver: bridge
