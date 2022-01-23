@@ -19,9 +19,16 @@ Push image into docker-registry using port ```5000 ```
 
 ```
 docker pull alpine
-docker tag alpine localhost:5000/my-alpine
-docker push localhost:5000/my-alpine
-docker pull localhost:5000/my-alpine
+docker tag alpine myregistry-127-0-0-1.nip.io:5000/alpine
+docker push myregistry-127-0-0-1.nip.io:5000/alpine
+docker pull myregistry-127-0-0-1.nip.io:5000/alpine
+```
+
+Or if you use [bash-fwk](https://github.com/frtu/bash-fwk) :
+
+```
+docker pull alpine
+dckregtagpush alpine myregistry-127-0-0-1.nip.io:5000
 ```
 
 ## Security concerns
