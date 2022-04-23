@@ -1,4 +1,4 @@
-postgres
+db-postgres
 ===
 
 ## Usage
