@@ -1,0 +1,38 @@
+version: '3'
+services:
+  elasticsearch:
+    image: ${ELASTICSEARCH_IMAGE}
+    restart: always
+    environment:
+      - discovery.type=single-node
+#      - bootstrap.memory_lock=true
+#      - ES_JAVA_OPTS=-Xms256m -Xmx256m
+    expose:
+      - 9200
+    ports:
+      - 9200:9200
+    networks:
+      - network
+    volumes:
+      - ~/data/elasticsearch:/usr/share/elasticsearch/data
+
+  kibana.logging:
+    image: ${KIBANA_IMAGE}
+    links:
+      - elasticsearch
+    restart: always
+    ports:
+      - 5601:5601
+    networks:
+      - network
+    environment:
+      # https://www.elastic.co/guide/en/kibana/current/docker.html
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+
+# https://docs.docker.com/compose/networking/
+networks:
+  network:
+    driver: bridge
+    # To enable IPv6 uncomment below lines
+#    driver_opts:
+#        com.docker.network.enable_ipv6: "true"
