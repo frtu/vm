@@ -4,7 +4,7 @@ version: '3'
 services:
   # https://hub.docker.com/_/postgres?tab=tags&page=1&ordering=last_updated
   postgres:
-    image: postgres:12.6
+    image: postgres:${POSTGRESQL_VERSION}
     #container_name: postgres
     hostname: database
     restart: always
@@ -28,12 +28,12 @@ services:
       ## To modify the storage location. By default /var/lib/postgresql/data
       # PGDATA: "/var/lib/postgresql/data"
     networks:
-      - db-network
-   healthcheck:
-     test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "admin" ]
-     timeout: 45s
-     interval: 10s
-     retries: 10
+      - network
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "admin" ]
+      timeout: 45s
+      interval: 10s
+      retries: 10
 
   pgadmin:
     image: dpage/pgadmin4:5.1
@@ -49,7 +49,7 @@ services:
     depends_on:
       - postgres
     networks:
-      - db-network
+      - network
     # https://githubmemory.com/repo/asaikali/docker-compose-postgres
     #entrypoint:
     #  - "/bin/sh"
@@ -57,4 +57,8 @@ services:
     #  - "/bin/echo 'postgres:5432:*:postgres:password' > /tmp/pgpassfile && chmod 600 /tmp/pgpassfile && /entrypoint.sh"
 
 networks:
-  db-network:
+  network:
+    driver: bridge
+    # To enable IPv6 uncomment below lines
+#    driver_opts:
+#        com.docker.network.enable_ipv6: "true"
