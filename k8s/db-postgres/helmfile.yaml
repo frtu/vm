@@ -11,11 +11,19 @@ releases:
   # https://bitnami.com/stack/postgresql/helm
   # https://github.com/bitnami/bitnami-docker-postgresql
   - name: postgresql
-    namespace: {{ .Values.namespace }}
     chart: bitnami/postgresql
-    # https://artifacthub.io/packages/helm/bitnami/postgresql
     version: 11.6.2
+    # https://artifacthub.io/packages/helm/bitnami/postgresql
+    namespace: {{ .Values.namespace }}
     atomic: true
     set:
       - name: image.tag
         value: {{ .Values.image.tag }}
+      - name: auth.username
+        value: {{ .Values.auth.username }}
+      - name: auth.password
+        value: {{ .Values.auth.password }}
+      - name: auth.database
+        value: {{ .Values.auth.database }}
+      - name: auth.postgresPassword
+        value: {{ .Values.auth.database }}
