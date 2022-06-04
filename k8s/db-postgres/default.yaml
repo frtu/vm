@@ -1,0 +1,7 @@
+namespace: "default"
+image:
+  tag: 12
+resources:
+    requests:
+      cpu: "1000m"
+      memory: "1Gi"
