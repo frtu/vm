@@ -16,6 +16,7 @@ releases:
     # https://artifacthub.io/packages/helm/bitnami/postgresql
     namespace: {{ .Values.namespace }}
     atomic: true
+    installed: false
     set:
       - name: image.tag
         value: {{ .Values.image.tag }}
@@ -25,5 +26,11 @@ releases:
         value: {{ .Values.auth.password }}
       - name: auth.database
         value: {{ .Values.auth.database }}
-      - name: auth.postgresPassword
+      - name: global.postgresql.auth.postgresPassword
         value: {{ .Values.auth.database }}
+      - name: primary.service.type
+        value: NodePort
+      - name: primary.service.nodePorts.postgresql
+        value: 30432
+      - name: primary.persistence.enabled
+        value: false
