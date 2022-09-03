@@ -112,8 +112,9 @@ vagrant/*/.vagrant
 **/key.json
 **/.helm
 **/.kube
-docker/mail-poste-io/data
 docker/db-mysql/db/data
+docker/db-postgres/db/data
 docker/broker-rabbitmq/rabbitmq/data
 docker/broker-rabbitmq/rabbitmq/logs
-docker/db-postgres/db/data
+docker/mail-poste-io/data
+docker/gitlab/data
