@@ -1,0 +1,28 @@
+version: '3'
+
+# https://github.com/slamdev/temporalite-container-image
+services:
+  # https://hub.docker.com/r/slamdev/temporalite/tags
+  temporal:
+    image: slamdev/temporalite:${TEMPORALITE_VERSION}
+# UNCOMMENT FOR USING local Dockerfile
+#    build:
+#      context: . #current dir as build context
+#      args:
+#        TEMPORALITE_VERSION: ${TEMPORALITE_VERSION}
+    hostname: temporal
+    restart: always
+    ports:
+      - ${WORKLFOW_PORT:-7233}:7233
+      - ${WORKLFOW_ADMIN_PORT:-8233}:8233
+    volumes:
+      - $PWD/data:/var/lib/temporal/data
+    networks:
+      - network
+
+networks:
+  network:
+    driver: bridge
+    # To enable IPv6 uncomment below lines
+#    driver_opts:
+#        com.docker.network.enable_ipv6: "true"
