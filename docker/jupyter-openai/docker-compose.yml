@@ -3,14 +3,16 @@ version: '3'
 services:
   jupyter_openai:
     container_name: 'jupyter_openai'
-    build: '.'
-#    image: xx:xx
+    image: jupyter/pyspark-notebook
+    # build: '.'
     ports:
+      - 9999:80
       - 8888:8888
     volumes:
       - $PWD/data:/data
-      - $PWD/notebooks:/notebooks/local
+      - $PWD/notebooks:/notebooks
     command: "/opt/conda/bin/jupyter notebook --ip=0.0.0.0 --port=8888 --allow-root --notebook-dir=/notebooks --NotebookApp.token='' --NotebookApp.password='' --NotebookApp.allow_origin='*' --NotebookApp.iopub_data_rate_limit='1.0e10' --no-browser"
     user: root
     environment:
       - GRANT_SUDO=yes
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
