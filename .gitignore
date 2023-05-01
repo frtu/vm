@@ -118,3 +118,4 @@ docker/broker-rabbitmq/rabbitmq/data
 docker/broker-rabbitmq/rabbitmq/logs
 docker/mail-poste-io/data
 docker/gitlab/data
+docker/jupyter-openai/notebooks/.ipynb_checkpoints
