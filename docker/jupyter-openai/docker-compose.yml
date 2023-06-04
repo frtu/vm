@@ -18,7 +18,10 @@ services:
       - network
     environment:
       - GRANT_SUDO=yes
+      - HUGGINGFACEHUB_API_TOKEN=${HUGGINGFACEHUB_API_TOKEN}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - PINECONE_API_KEY=${PINECONE_API_KEY}
+      - PINECONE_ENV=${PINECONE_ENV}
   
   # FOR EMBEDDINGS
   # https://hub.docker.com/r/ankane/pgvector/tags
