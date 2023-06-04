@@ -4,6 +4,9 @@ services:
   # https://github.com/docker-library/docs/tree/master/mysql
   mysql:
     image: mysql:8.0.22
+    platform: linux/x86_64
+    # image: mariadb:10.5.8
+
     # container_name: mysql
     hostname: database
     restart: always
