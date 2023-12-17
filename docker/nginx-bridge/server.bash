@@ -17,7 +17,7 @@ nginxbuild() {
   docker build --force-rm=true --no-cache=true -t ${IMAGE_NAME} .
 }
 
-echo "Type 'nginxtagpush' to tag and push docker image
+echo "Type 'nginxtagpush' to tag and push docker image"
 nginxtagpush() {
   # MIN NUM OF ARG
   if [[ "$#" < "1" ]]; then
@@ -32,7 +32,7 @@ nginxtagpush() {
   docker push ${DOCKER_REGISTRY_URL}
 }
 
-echo "Type 'nginxchart' to deploy chart
+echo "Type 'nginxchart' to deploy chart"
 nginxchart() {
   # https://docs.bitnami.com/kubernetes/how-to/create-your-first-helm-chart/
   helm install ./nginx-bridge
