@@ -1,4 +1,5 @@
 # http://docs.confluent.io/current/cp-docker-images/docs/configuration.html
+# https://docs.confluent.io/platform/current/installation/docker/config-reference.html
 ---
 version: '2.1'
 services:
@@ -7,6 +8,8 @@ services:
     hostname: zookeeper
     ports:
       - "2181:2181"
+    networks:
+      - network
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
@@ -24,10 +27,18 @@ services:
       zookeeper: { condition: service_healthy }
     ports:
       - "9092:9092"
+      - "9093:9093"
+    networks:
+      - network
     environment:
       KAFKA_BROKER_ID: 1
+      KAFKA_HOST_NAME: broker
       KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://broker:9092'
+      # https://rmoff.net/2018/08/02/kafka-listeners-explained/
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:9093, EXTERNAL://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+
 #      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
 #      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker:9092
 #      CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -96,4 +107,9 @@ services:
 #      CONNECT_INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
 #      CONNECT_ZOOKEEPER_CONNECT: 'zookeeper:2181'
 
-
+networks:
+  network:
+    driver: bridge
+    # To enable IPv6 uncomment below lines
+#    driver_opts:
+#        com.docker.network.enable_ipv6: "true"
