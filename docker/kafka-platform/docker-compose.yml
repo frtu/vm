@@ -39,6 +39,10 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
 
+      # https://github.com/robcowart/docker_compose_cookbook/blob/master/confluent_kafka_oss/docker-compose.yml
+      # Enable auto creation of topic on the server.
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+
 #      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
 #      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker:9092
 #      CONFLUENT_METRICS_REPORTER_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -50,6 +54,18 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
+
+# kafka-init-topics:
+#   image: confluentinc/cp-kafka:7.2.1
+#   volumes:
+#      - ./data/message.json:/data/message.json
+#   depends_on:
+#     - kafka
+#   command: "bash -c 'echo Waiting for Kafka to be ready... && \
+#              cub kafka-ready -b kafka:29092 1 30 && \
+#              kafka-topics --create --topic users --partitions 3 --replication-factor 1 --if-not-exists --bootstrap-server kafka:29092 && \
+#              kafka-topics --create --topic messages --partitions 2 --replication-factor 1 --if-not-exists --bootstrap-server kafka:29092 && \
+#              kafka-console-producer --bootstrap-server kafka:29092 --topic users < /data/message.json'"
 
   schema_registry:
     image: confluentinc/cp-schema-registry:latest
@@ -106,6 +122,22 @@ services:
 #      CONNECT_INTERNAL_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
 #      CONNECT_INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
 #      CONNECT_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+
+  # https://github.com/provectus/kafka-ui/blob/master/documentation/compose/kafka-ui.yaml
+  kafka-ui:
+    container_name: kafka-ui
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - 8080:8080
+    depends_on:
+      - zookeeper
+      - broker
+    networks:
+      - network
+    environment:
+      KAFKA_CLUSTERS_0_NAME: broker
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: broker:9093
+      KAFKA_CLUSTERS_0_METRICS_PORT: 9997
 
 networks:
   network:
