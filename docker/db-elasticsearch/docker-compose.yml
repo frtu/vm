@@ -44,6 +44,13 @@ services:
       timeout: 10s
       retries: 3
 
+  # https://github.com/Unstructured-IO
+  unstructured:
+    image: ${UNSTRUCTURED_API_IMAGE}
+    restart: always
+    volumes:
+      - ~/data/unstructured:/app/data
+
 # https://docs.docker.com/compose/networking/
 networks:
   bridge:
