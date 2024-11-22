@@ -1,37 +1,52 @@
-version: '3'
 services:
+  # https://www.elastic.co/guide/en/elasticsearch/reference/current/settings.html
+  # https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-prod-prerequisites
   elasticsearch:
     image: ${ELASTICSEARCH_IMAGE}
     restart: always
-    environment:
-      - discovery.type=single-node
-#      - bootstrap.memory_lock=true
-#      - ES_JAVA_OPTS=-Xms256m -Xmx256m
-    expose:
-      - 9200
+    hostname: elasticsearch
     ports:
-      - 9200:9200
-    networks:
-      - network
+      - ${ELASTICSEARCH_PORT:-9200}:9200
     volumes:
       - ~/data/elasticsearch:/usr/share/elasticsearch/data
-
-  kibana.logging:
-    image: ${KIBANA_IMAGE}
-    links:
-      - elasticsearch
-    restart: always
-    ports:
-      - 5601:5601
-    networks:
-      - network
     environment:
-      # https://www.elastic.co/guide/en/kibana/current/docker.html
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
+      - http.port=9200
+      - xpack.security.enabled=false
+    networks:
+      - bridge
+    healthcheck:
+      test: ['CMD', 'curl', '-s', 'http://localhost:9200/_cluster/health?pretty']
+      interval: 30s
+      timeout: 10s
+      retries: 50
+
+  # https://www.elastic.co/guide/en/kibana/current/docker.html
+  # https://www.elastic.co/guide/en/kibana/current/settings.html
+  kibana:
+    image: ${KIBANA_IMAGE}
+    restart: always
+    depends_on:
+      - elasticsearch
+    ports:
+      - ${KIBANA_PORT:-5601}:5601
+    volumes:
+      - ~/data/kibana:/usr/share/kibana/data    
+    environment:
       ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    networks:
+      - bridge
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -s http://localhost:5601 >/dev/null || exit 1']
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 # https://docs.docker.com/compose/networking/
 networks:
-  network:
+  bridge:
     driver: bridge
     # To enable IPv6 uncomment below lines
 #    driver_opts:
