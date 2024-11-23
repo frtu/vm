@@ -4,8 +4,8 @@ volumes:
     driver: local
 
 services:
-  # https://www.elastic.co/guide/en/elasticsearch/reference/current/settings.html
-  # https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-prod-prerequisites
+  # https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
+  # https://github.com/elastic/elasticsearch/blob/main/docs/reference/setup/install/docker/docker-compose.yml
   elasticsearch:
     image: ${ELASTICSEARCH_IMAGE}
     # ----------------------------------
@@ -17,19 +17,23 @@ services:
     restart: unless-stopped
     hostname: elasticsearch
     ports:
-      - ${ELASTICSEARCH_PORT:-9200}:9200
+      - ${ES_PORT:-9200}:9200
     volumes:
       - ~/data/elasticsearch:/usr/share/elasticsearch/data
       # https://elk-docker.readthedocs.io/#installing-elasticsearch-plugins
       - esplugins:/usr/share/elasticsearch/plugins      
     environment:
+      # https://www.elastic.co/guide/en/elasticsearch/reference/current/settings.html
+      # https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-prod-prerequisites
+      - node.name=${ES_NODE_NAME}
       - discovery.type=single-node
       - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
       - http.port=9200
       - http.cors.enabled=true
-      # - http.cors.allow-origin=*
+      - http.cors.allow-origin="*"
       - http.cors.allow-headers=X-Requested-With,Content-Type,Content-Length,Authorization
       - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
       - ELASTIC_USER=${ELASTIC_USER:-}
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD:-}
       # https://www.elastic.co/guide/en/elasticsearch/reference/8.15/docker.html#_disable_swapping
@@ -41,10 +45,12 @@ services:
     networks:
       - bridge
     healthcheck:
-      test: ["CMD-SHELL", "curl --silent --fail -u ${ELASTIC_USER}:${ELASTIC_PASSWORD} localhost:9200/_cluster/health || exit 1"]
+      # https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-health.html
+      test: [ "CMD", "curl", "--fail", "-u ${ELASTIC_USER}:${ELASTIC_PASSWORD}", "${ELASTICSEARCH_URL}/_cluster/health" ]
       interval: 10s
-      timeout: 30s
-      retries: 3
+      timeout: 40s
+      retries: 5
+      start_period: 40s
 
   # https://www.elastic.co/guide/en/kibana/current/docker.html
   # https://www.elastic.co/guide/en/kibana/current/settings.html
@@ -58,7 +64,8 @@ services:
     volumes:
       - ~/data/kibana:/usr/share/kibana/data    
     environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      # https://www.elastic.co/guide/en/kibana/current/docker.html
+      - ELASTICSEARCH_HOSTS=${ELASTICSEARCH_URL}
       # https://www.elastic.co/guide/en/elasticsearch/reference/8.15/configuring-stack-security.html#stack-start-with-security
       - ELASTICSEARCH_USERNAME=${ELASTIC_USER:-}
       - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD:-}
@@ -71,11 +78,11 @@ services:
       retries: 3
 
   # https://github.com/Unstructured-IO
-  unstructured:
-    image: ${UNSTRUCTURED_API_IMAGE}
-    restart: unless-stopped
-    volumes:
-      - ~/data/unstructured:/app/data
+  # unstructured:
+  #   image: ${UNSTRUCTURED_API_IMAGE}
+  #   restart: unless-stopped
+  #   volumes:
+  #     - ~/data/unstructured:/app/data
 
 # https://docs.docker.com/compose/networking/
 networks:
