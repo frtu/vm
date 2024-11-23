@@ -25,6 +25,14 @@ elasticsearch:
     dockerfile: ./Dockerfile
 ```
 
+## Load data
+
+Load data by running
+
+```
+python ./ingest-movies/create_and_fill_es.py
+```
+
 ## Usage
 
 ### Option 1 - docker compose
