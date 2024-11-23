@@ -1,6 +1,30 @@
 db-elasticsearch
 ===
 
+ElasticSearch with Kibana
+
+## Startup
+
+### Enable default ES
+
+```yaml
+elasticsearch:
+  image: ${ELASTICSEARCH_IMAGE}
+```
+
+### Enable ES with plugins
+
+Add the desired plugin into `Dockerfile` :
+
+* comment `image` tag
+* uncomment in `docker-compose.yml`
+
+```yaml
+elasticsearch:
+  build:
+    dockerfile: ./Dockerfile
+```
+
 ## Usage
 
 ### Option 1 - docker compose
