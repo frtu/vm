@@ -1,0 +1,206 @@
+# https://www.elastic.co/guide/en/elasticsearch/reference/8.15/docker.html#docker-compose-file
+volumes:
+  esdata:
+    driver: local
+  esplugins:
+    driver: local
+
+services:
+  # =========================
+  # Jupiter
+  # =========================
+  jupyter:
+    # https://hub.docker.com/r/jupyter/pyspark-notebook/tags
+    image: jupyter/pyspark-notebook:python-3.11.6
+    # build: '.'
+    ports:
+      - 9999:80
+      - 8888:8888
+      - 7860:7860
+    volumes:
+      # - ~/data:/data
+      # - ~/notebooks:/notebooks
+    command: "/opt/conda/bin/jupyter notebook --ip=0.0.0.0 --port=8888 --allow-root --notebook-dir=/notebooks --NotebookApp.token='' --NotebookApp.password='' --NotebookApp.allow_origin='*' --NotebookApp.iopub_data_rate_limit='1.0e10' --no-browser"
+    user: root
+    networks:
+      - bridge
+    env_file: .env
+    environment:
+      - GRANT_SUDO=yes
+      - JUPYTER_TOKEN=secret123
+      - DB_DRIVER=${DB_DRIVER}
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - APP_DB_NAME=${APP_DB_NAME}
+      - APP_DB_USER=${APP_DB_USER}
+      - APP_DB_PASSWORD=${APP_DB_PASSWORD}
+      - ELASTIC_USER=${ELASTIC_USER:-}
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD:-}
+
+  # =========================
+  # PostgreSQL
+  # =========================
+  # https://renzolucioni.com/postgres-docker-compose/
+  # https://hub.docker.com/_/postgres?tab=tags&page=1&ordering=last_updated
+  postgres:
+    image: postgres:${POSTGRESQL_VERSION}
+    #container_name: postgres
+    hostname: database
+    restart: always
+    ports:
+      - ${DB_PORT:-5432}:5432
+    volumes:
+      - $PWD/db/data:/var/lib/postgresql/data
+      - $PWD/db/init:/docker-entrypoint-initdb.d/
+      # - $PWD/db/init_sql/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    environment:
+      POSTGRES_USER: ${ADMIN_USER:-root}
+      POSTGRES_PASSWORD: ${ADMIN_PASSWORD:-admin}
+      ## During INIT, allows to bootstrap an empty database for all user creation
+      POSTGRES_DB: ${DB_NAME:-postgres}
+      APP_DB_SCHEMA: ${APP_DB_SCHEMA:-public}
+      APP_DB_NAME: ${APP_DB_NAME:-db}
+      APP_DB_USER: ${APP_USER:-user}
+      APP_DB_PASS: ${APP_PASSWORD:-pass}
+      # https://www.postgresql.org/docs/current/auth-trust.html
+      POSTGRES_HOST_AUTH_METHOD: trust # allow all connections without a password. This is *not* recommended for prod
+      ## To modify the storage location. By default /var/lib/postgresql/data
+      # PGDATA: "/var/lib/postgresql/data"
+    networks:
+      - network
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "admin" ]
+      timeout: 45s
+      interval: 10s
+      retries: 10
+      # Set wal_level to logical to support logical decoding for Debezium
+#      POSTGRES_INITDB_ARGS: "--wal_level=logical"
+    command: ["postgres", "-c", "wal_level=logical"]
+
+  pgadmin:
+    image: dpage/pgadmin4:5.1
+    #container_name: pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${ADMIN_UI_LOGIN:-admin@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${ADMIN_UI_PASSWORD:-admin}
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: ${ADMIN_UI_REQUIRE_PASSWORD:-False}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - ${DB_UI_PORT:-8008}:80
+    depends_on:
+      - postgres
+    networks:
+      - network
+    # https://githubmemory.com/repo/asaikali/docker-compose-postgres
+    #entrypoint:
+    #  - "/bin/sh"
+    #  - "-c"
+    #  - "/bin/echo 'postgres:5432:*:postgres:password' > /tmp/pgpassfile && chmod 600 /tmp/pgpassfile && /entrypoint.sh"
+
+  # =========================
+  # ElasticSearch
+  # =========================
+  # https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html
+  # https://github.com/elastic/elasticsearch/blob/main/docs/reference/setup/install/docker/docker-compose.yml
+  elasticsearch:
+    image: ${ELASTICSEARCH_IMAGE}
+    # ----------------------------------
+    # UNCOMMENT TO BUILD ES WITH PLUGINS
+    # ----------------------------------
+    # build:
+    #   dockerfile: ./Dockerfile
+    #   context: ./
+    restart: unless-stopped
+    hostname: elasticsearch
+    ports:
+      - ${ES_PORT:-9200}:9200
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+      # https://elk-docker.readthedocs.io/#installing-elasticsearch-plugins
+      - esplugins:/usr/share/elasticsearch/plugins      
+    env_file: .env
+    environment:
+      # https://www.elastic.co/guide/en/elasticsearch/reference/current/settings.html
+      # https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#docker-prod-prerequisites
+      - node.name=${ES_NODE_NAME}
+      - discovery.type=single-node
+      - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
+      - http.port=9200
+      - http.cors.enabled=true
+      - http.cors.allow-origin="*"
+      - http.cors.allow-headers=X-Requested-With,Content-Type,Content-Length,Authorization
+      # - http.cors.allow-credentials=true
+      - xpack.security.enabled=false
+      - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
+      # - xpack.security.authc.api_key.enabled=false
+      # - xpack.license.self_generated.type=trial
+      # - ingest.geoip.downloader.enabled=false
+      - ELASTIC_USER=${ELASTIC_USER:-}
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD:-}
+      - TZ=${TIMEZONE}
+      # https://www.elastic.co/guide/en/elasticsearch/reference/8.15/docker.html#_disable_swapping
+      - bootstrap.memory_lock=true
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    mem_limit: ${MEM_LIMIT}
+    networks:
+      - bridge
+    healthcheck:
+      # https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-health.html
+      test: [ "CMD", "curl", "--fail", "-u ${ELASTIC_USER}:${ELASTIC_PASSWORD}", "${ELASTICSEARCH_URL}/_cluster/health" ]
+      interval: 10s
+      timeout: 40s
+      retries: 5
+      start_period: 40s
+    deploy:
+      mode: replicated
+      replicas: 1
+
+  # dejavu:
+  #   image: appbaseio/dejavu:3.6.0
+  #   ports:
+  #     - "1358:1358"
+  #   links:
+  #     - elasticsearch
+  #   networks:
+  #     - bridge
+
+  # https://www.elastic.co/guide/en/kibana/current/docker.html
+  # https://www.elastic.co/guide/en/kibana/current/settings.html
+  kibana:
+    image: ${KIBANA_IMAGE}
+    restart: unless-stopped
+    depends_on:
+      - elasticsearch
+    ports:
+      - ${KIBANA_PORT:-5601}:5601
+    volumes:
+      - ~/data/kibana:/usr/share/kibana/data    
+    env_file: .env
+    environment:
+      # https://www.elastic.co/guide/en/kibana/current/docker.html
+      - ELASTICSEARCH_HOSTS=${ELASTICSEARCH_URL}
+      # https://www.elastic.co/guide/en/elasticsearch/reference/8.15/configuring-stack-security.html#stack-start-with-security
+      - ELASTICSEARCH_USERNAME=${ELASTIC_USER:-}
+      - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD:-}
+    networks:
+      - bridge
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -s http://localhost:5601 >/dev/null || exit 1']
+      interval: 10s
+      timeout: 30s
+      retries: 3
+    deploy:
+      mode: replicated
+      replicas: 1
+
+networks:
+  network:
+    driver: bridge
+    # To enable IPv6 uncomment below lines
+#    driver_opts:
+#        com.docker.network.enable_ipv6: "true"
