@@ -17,13 +17,13 @@ services:
       - 9999:80
       - 8888:8888
       - 7860:7860
-    volumes:
+    # volumes:
       # - ~/data:/data
       # - ~/notebooks:/notebooks
     command: "/opt/conda/bin/jupyter notebook --ip=0.0.0.0 --port=8888 --allow-root --notebook-dir=/notebooks --NotebookApp.token='' --NotebookApp.password='' --NotebookApp.allow_origin='*' --NotebookApp.iopub_data_rate_limit='1.0e10' --no-browser"
     user: root
     networks:
-      - bridge
+      - network
     env_file: .env
     environment:
       - GRANT_SUDO=yes
@@ -148,7 +148,7 @@ services:
         hard: -1
     mem_limit: ${MEM_LIMIT}
     networks:
-      - bridge
+      - network
     healthcheck:
       # https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-health.html
       test: [ "CMD", "curl", "--fail", "-u ${ELASTIC_USER}:${ELASTIC_PASSWORD}", "${ELASTICSEARCH_URL}/_cluster/health" ]
@@ -167,7 +167,7 @@ services:
   #   links:
   #     - elasticsearch
   #   networks:
-  #     - bridge
+  #     - network
 
   # https://www.elastic.co/guide/en/kibana/current/docker.html
   # https://www.elastic.co/guide/en/kibana/current/settings.html
@@ -188,7 +188,7 @@ services:
       - ELASTICSEARCH_USERNAME=${ELASTIC_USER:-}
       - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD:-}
     networks:
-      - bridge
+      - network
     healthcheck:
       test: ['CMD-SHELL', 'curl -s http://localhost:5601 >/dev/null || exit 1']
       interval: 10s
