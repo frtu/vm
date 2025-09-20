@@ -179,8 +179,8 @@ services:
       POSTGRES_DB: ${DB_NAME:-postgres}
       APP_DB_SCHEMA: ${APP_DB_SCHEMA:-public}
       APP_DB_NAME: ${APP_DB_NAME:-db}
-      APP_DB_USER: ${APP_USER:-user}
-      APP_DB_PASS: ${APP_PASSWORD:-pass}
+      APP_DB_USER: ${APP_DB_USER:-admin}
+      APP_DB_PASS: ${APP_DB_PASSWORD:-admin}
       # https://www.postgresql.org/docs/current/auth-trust.html
       POSTGRES_HOST_AUTH_METHOD: trust # allow all connections without a password. This is *not* recommended for prod
       ## To modify the storage location. By default /var/lib/postgresql/data
