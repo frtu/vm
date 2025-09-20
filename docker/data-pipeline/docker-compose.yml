@@ -17,9 +17,9 @@ services:
       - 9999:80
       - 8888:8888
       - 7860:7860
-    # volumes:
-      # - ~/data:/data
-      # - ~/notebooks:/notebooks
+    volumes:
+      - ./data:/data
+      - ./notebooks:/notebooks
     command: "/opt/conda/bin/jupyter notebook --ip=0.0.0.0 --port=8888 --allow-root --notebook-dir=/notebooks --NotebookApp.token='' --NotebookApp.password='' --NotebookApp.allow_origin='*' --NotebookApp.iopub_data_rate_limit='1.0e10' --no-browser"
     user: root
     networks:
@@ -45,7 +45,7 @@ services:
     image: flink:2.1.0-scala_2.12-java21
     restart: always
     ports:
-      - ${JOB_MANAGER_PORT:-8081}:8081
+      - ${JOB_MANAGER_PORT:-28081}:8081
     volumes:
       - $PWD:/workspace
     command: jobmanager
@@ -195,27 +195,6 @@ services:
       # Set wal_level to logical to support logical decoding for Debezium
 #      POSTGRES_INITDB_ARGS: "--wal_level=logical"
     command: ["postgres", "-c", "wal_level=logical"]
-
-  pgadmin:
-    image: dpage/pgadmin4:5.1
-    #container_name: pgadmin
-    restart: always
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${ADMIN_UI_LOGIN:-admin@pgadmin.org}
-      PGADMIN_DEFAULT_PASSWORD: ${ADMIN_UI_PASSWORD:-admin}
-      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: ${ADMIN_UI_REQUIRE_PASSWORD:-False}
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
-    ports:
-      - ${DB_UI_PORT:-8008}:80
-    depends_on:
-      - postgres
-    networks:
-      - network
-    # https://githubmemory.com/repo/asaikali/docker-compose-postgres
-    #entrypoint:
-    #  - "/bin/sh"
-    #  - "-c"
-    #  - "/bin/echo 'postgres:5432:*:postgres:password' > /tmp/pgpassfile && chmod 600 /tmp/pgpassfile && /entrypoint.sh"
 
   # =========================
   # ElasticSearch
