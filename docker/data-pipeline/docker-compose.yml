@@ -169,6 +169,7 @@ services:
     ports:
       - ${DB_PORT:-5432}:5432
     volumes:
+      - ./conf/postgres.conf:/etc/postgresql.conf
       - $PWD/db/data:/var/lib/postgresql/data
       - $PWD/db/init:/docker-entrypoint-initdb.d/
       # - $PWD/db/init_sql/schema.sql:/docker-entrypoint-initdb.d/schema.sql
@@ -192,9 +193,10 @@ services:
       timeout: 45s
       interval: 10s
       retries: 10
-      # Set wal_level to logical to support logical decoding for Debezium
-#      POSTGRES_INITDB_ARGS: "--wal_level=logical"
-    command: ["postgres", "-c", "wal_level=logical"]
+    # Set wal_level to logical to support logical decoding for Debezium
+    # POSTGRES_INITDB_ARGS: "--wal_level=logical"
+    # command: ["postgres", "-c", "wal_level=logical"]
+    command: ["postgres", "-c", "config_file=/etc/postgresql.conf"]
 
   # =========================
   # ElasticSearch
