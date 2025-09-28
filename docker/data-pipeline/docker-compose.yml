@@ -43,6 +43,7 @@ services:
   # https://hub.docker.com/_/flink/tags
   jobmanager:
     image: flink:2.1.0-scala_2.12-java21
+    hostname: jobmanager
     restart: always
     ports:
       - ${JOB_MANAGER_PORT:-28081}:8081
@@ -57,20 +58,28 @@ services:
       timeout: 5s
       retries: 5
     environment:
-      - JOB_MANAGER_RPC_ADDRESS=jobmanager
+    - |
+      FLINK_PROPERTIES=
+      jobmanager.rpc.address: jobmanager
+      rest.flamegraph.enabled: true
 
   taskmanager:
     image: flink:2.1.0-scala_2.12-java21
     restart: always
+    hostname: taskmanager
     depends_on:
       jobmanager:
         condition: service_healthy
     networks:
       - network
     command: taskmanager
+    deploy:
+      replicas: 2
     environment:
-      - JOB_MANAGER_RPC_ADDRESS=jobmanager
-      - TASK_MANAGER_NUMBER_OF_TASK_SLOTS=2
+      - |
+        FLINK_PROPERTIES=
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 4
     
   # =========================
   # Kafka
@@ -144,7 +153,7 @@ services:
     hostname: kafka-ui
     restart: always
     ports:
-      - ${KAFKA_UI_PORT:-28080}:8080
+      - ${KAFKA_UI_PORT:-18080}:8080
     depends_on:
       kafka:
         condition: service_healthy
@@ -157,6 +166,20 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
       KAFKA_CLUSTERS_0_KAFKACONNECT_0_NAME: debezium
       KAFKA_CLUSTERS_0_KAFKACONNECT_0_ADDRESS: http://kafka-connect:8083
+
+  redpanda:
+    image: docker.redpanda.com/redpandadata/console:v3.2.2
+    hostname: redpanda
+    restart: always
+    ports:
+      - ${REDPANDA_UI_PORT:-18081}:8080
+    depends_on:
+      kafka:
+        condition: service_healthy
+    networks:
+      - network
+    environment:
+      - KAFKA_BROKERS=host.docker.internal:9092
 
   # =========================
   # PostgreSQL
@@ -248,6 +271,9 @@ services:
       memlock:
         soft: -1
         hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
     mem_limit: ${MEM_LIMIT}
     networks:
       - network

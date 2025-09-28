@@ -7,8 +7,9 @@ Open Notebook at : [http://localhost:8888](http://localhost:8888)
 
 ### Data in motion
 
-* Kafka-UI : [http://localhost:28080](http://localhost:28080/ui/clusters/local/all-topics)
-* Flink UI : [http://localhost:28081](http://localhost:28080/ui/clusters/local/all-topics)
+* Kafka-UI : [http://localhost:18080](http://localhost:18080)
+* [Redpanda](https://docs.redpanda.com/current/home/) : [http://localhost:18081](http://localhost:18081)
+* Flink UI : [http://localhost:28081](http://localhost:28081)
 
 ### Data at Rest
 
