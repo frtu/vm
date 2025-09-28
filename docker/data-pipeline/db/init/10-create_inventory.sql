@@ -1,8 +1,9 @@
-SET search_path TO inventory;
+CREATE SCHEMA IF NOT EXISTS inventory;
+SET search_path TO inventory, public;
 
-DROP TABLE customers CASCADE;
+DROP TABLE IF EXISTS customers CASCADE;
 
-CREATE TABLE customers (
+CREATE TABLE inventory.customers (
   id SERIAL NOT NULL PRIMARY KEY,
   fname VARCHAR(255) NOT NULL,
   lname VARCHAR(255) NOT NULL,
@@ -17,7 +18,7 @@ CREATE TABLE customers (
 ALTER SEQUENCE customers_id_seq RESTART WITH 1001;
 ALTER TABLE customers REPLICA IDENTITY FULL;
 
-CREATE TABLE phone_numbers (
+CREATE TABLE inventory.phone_numbers (
   id SERIAL NOT NULL PRIMARY KEY,
   customer_id INT NOT NULL REFERENCES customers (id),
   preferred BOOLEAN,
