@@ -18,7 +18,7 @@
         <scala.binary.version>2.12</scala.binary.version>
         <debezium.version>2.5.0.Final</debezium.version>
 
-        <postgresql.version>42.6.0</postgresql.version>
+        <postgresql.version>42.6.1</postgresql.version>
         <protobuf.version>3.25.5</protobuf.version>
         <log4j.version>2.24.1</log4j.version>
 
