@@ -201,7 +201,7 @@ services:
     networks:
       - network
     healthcheck:
-      test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "admin" ]
+      test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "${APP_DB_USER:-admin}" ]
       timeout: 45s
       interval: 10s
       retries: 10
@@ -232,7 +232,7 @@ services:
   #   networks:
   #     - network
   #   healthcheck:
-  #     test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "admin" ]
+  #     test: [ "CMD", "pg_isready", "-q", "-d", "postgres", "-U", "${APP_DB_USER:-admin}" ]
   #     timeout: 45s
   #     interval: 10s
   #     retries: 10
