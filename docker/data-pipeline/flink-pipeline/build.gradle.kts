@@ -1,5 +1,11 @@
 plugins {
     var kotlin = "1.9.25"
+    var springBoot = "3.3.8"
+
+    // Spring
+    kotlin("plugin.spring") version kotlin
+    id("org.springframework.boot") version springBoot
+    id("io.spring.dependency-management") version "1.1.7"
 
     // Core
     kotlin("jvm") version kotlin
@@ -22,6 +28,7 @@ dependencies {
     implementation(libs.frtu.logs)
 
     // flink
+    api(libs.flink.java)
     api(libs.flink.streaming.java)
     api(libs.flink.clients)
     api(libs.flink.connector.base)
@@ -29,7 +36,11 @@ dependencies {
     api(libs.kafka.clients)
 
     // spring
-    implementation("org.springframework:spring-core")
+    implementation("org.springframework:spring-context")
+    implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-configuration-processor")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
 
     // core
     implementation(libs.jackson.kotlin)
