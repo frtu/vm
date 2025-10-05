@@ -1,10 +1,11 @@
 package com.github.frtu.vm.sample
 
 import com.github.frtu.kotlin.utils.io.ResourceHelper
+import io.kotest.matchers.nulls.shouldNotBeNull
+import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.junit5.MockKExtension
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -31,7 +32,7 @@ internal class BaseTest {
         //--------------------------------------
         // 1. Init
         //--------------------------------------
-        var captured:String? = null
+        var captured: String? = null
         val consumer: Consumer<String> = Consumer { str ->
             captured = str
         }
@@ -44,7 +45,8 @@ internal class BaseTest {
         //--------------------------------------
         // 3. Validate
         //--------------------------------------
-        assertThat(captured).isEqualTo(result)
+        captured.shouldNotBeNull()
+        captured shouldBe result
     }
 
     @Test
@@ -63,6 +65,6 @@ internal class BaseTest {
         //--------------------------------------
         // 3. Validate
         //--------------------------------------
-        assertThat(text).isEqualTo("text")
+        text shouldBe "text"
     }
 }

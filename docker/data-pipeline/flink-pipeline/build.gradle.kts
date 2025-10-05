@@ -1,8 +1,15 @@
 plugins {
+    var kotlin = "1.9.25"
+    var springBoot = "3.3.8"
+
     // Core
-    kotlin("jvm") version "1.9.22"
+    kotlin("jvm") version kotlin
     `java-library`
     `maven-publish`
+
+    // Spring
+    kotlin("plugin.spring") version kotlin
+    id("org.springframework.boot") version springBoot
 
     // Application
     application
@@ -13,6 +20,7 @@ description = "flink-pipeline"
 
 dependencies {
     // frtu libs
+    implementation(libs.frtu.utils)
     implementation(libs.frtu.logs)
 
     // flink
@@ -24,14 +32,15 @@ dependencies {
 
     // core
     implementation(libs.jackson.kotlin)
+    implementation(libs.log.logback)
 
     // Core & test
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
+    testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("io.mockk:mockk:1.13.11")
-    testImplementation(libs.kotest.runner)
-    testImplementation(libs.kotest.assertions)
+    testImplementation(libs.test.runner)
+    testImplementation(libs.test.assertions)
+    testImplementation(libs.test.mockk)
 }
 
 java {
