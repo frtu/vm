@@ -1,3 +1,10 @@
+application:
+  flink:
+    default:
+      source:
+        topic: "dbserver1.inventory.customers"
+        parallelism: 1
+
 spring:
   main:
     allow-bean-definition-overriding: true
