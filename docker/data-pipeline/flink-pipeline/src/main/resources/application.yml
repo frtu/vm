@@ -8,6 +8,8 @@ application:
 spring:
   main:
     allow-bean-definition-overriding: true
+  kafka:
+    bootstrap-servers: ${KAFKA_BROKERS:localhost:9092}
 
 flink:
   # Job manager
