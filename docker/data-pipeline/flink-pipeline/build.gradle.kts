@@ -10,6 +10,7 @@ plugins {
     // Spring
     kotlin("plugin.spring") version kotlin
     id("org.springframework.boot") version springBoot
+    id("io.spring.dependency-management") version "1.1.7"
 
     // Application
     application
@@ -30,11 +31,14 @@ dependencies {
     api(libs.flink.connector.kafka)
     api(libs.kafka.clients)
 
+    // spring
+    implementation("org.springframework:spring-core")
+
     // core
     implementation(libs.jackson.kotlin)
-    implementation(libs.log.logback)
+    implementation("ch.qos.logback:logback-classic")
 
-    // Core & test
+    // base & test
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
