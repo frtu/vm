@@ -33,6 +33,7 @@ flink-java = { group = "org.apache.flink", name = "flink-java", version.ref = "f
 flink-streaming-java = { group = "org.apache.flink", name = "flink-streaming-java", version.ref = "flink" }
 flink-clients = { group = "org.apache.flink", name = "flink-clients", version.ref = "flink" }
 flink-connector-base = { group = "org.apache.flink", name = "flink-connector-base", version.ref = "flink" }
+flink-connector-files = { group = "org.apache.flink", name = "flink-connector-files", version.ref = "flink" }
 flink-connector-kafka = { group = "org.apache.flink", name = "flink-connector-kafka", version.ref = "flink-kafka" }
 
 # middleware
