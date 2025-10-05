@@ -16,23 +16,23 @@ class FlinkExecutor(
     private val flinkEnv: StreamExecutionEnvironment,
 ) {
     @EventListener
-    fun handleContextRefresh(event: ContextRefreshedEvent) = taskExecutor.execute {
+    fun handleContextRefresh(
+        event: ContextRefreshedEvent,
+    ) = taskExecutor.execute {
         // execute in another thread, so we don't hold it up
         try {
             logger.info("Running flink job {}", flinkProperties.jobName)
-            taskExecutor.execute { executeFlinkJob() }
+            taskExecutor.execute {
+                try {
+                    flinkEnv.execute(flinkProperties.jobName)
+                } catch (e: Exception) {
+                    logger.error("Failed to submit flink job", e)
+                    conditionallyExitSpringApp(1)
+                }
+            }
             Thread.sleep(flinkProperties.terminationGracePeriodMs)
             conditionallyExitSpringApp(0)
         } catch (e: InterruptedException) {
-            logger.error("Failed to submit flink job", e)
-            conditionallyExitSpringApp(1)
-        }
-    }
-
-    private fun executeFlinkJob() {
-        try {
-            flinkEnv.execute(flinkProperties.jobName)
-        } catch (e: Exception) {
             logger.error("Failed to submit flink job", e)
             conditionallyExitSpringApp(1)
         }

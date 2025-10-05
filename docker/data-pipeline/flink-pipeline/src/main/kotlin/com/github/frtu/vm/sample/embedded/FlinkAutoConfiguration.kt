@@ -1,10 +1,11 @@
 package com.github.frtu.vm.sample.embedded
 
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
+import org.slf4j.LoggerFactory
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Configuration
 import org.springframework.core.task.SimpleAsyncTaskExecutor
 import org.springframework.core.task.TaskExecutor
 
@@ -14,7 +15,7 @@ class FlinkAutoConfiguration {
     @Bean
     fun flinkExecutor(
         appCtx: ApplicationContext, taskExecutor: TaskExecutor,
-        flinkProperties: FlinkProperties, flinkEnvironment: StreamExecutionEnvironment
+        flinkProperties: FlinkProperties, flinkEnvironment: StreamExecutionEnvironment,
     ) = FlinkExecutor(appCtx, taskExecutor, flinkProperties, flinkEnvironment)
 
     @Bean("taskExecutor")
@@ -36,5 +37,7 @@ class FlinkAutoConfiguration {
             *flinkProperties.remoteEnvJarFiles.toTypedArray<String>()
         )
     }
+
+    private val logger = LoggerFactory.getLogger(this::class.java)
 }
 

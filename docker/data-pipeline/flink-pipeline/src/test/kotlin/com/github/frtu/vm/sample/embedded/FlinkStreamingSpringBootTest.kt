@@ -1,16 +1,9 @@
 package com.github.frtu.vm.sample.embedded
 
 import io.kotest.matchers.shouldBe
-import java.nio.file.Files
-import java.nio.file.Paths
 import java.util.concurrent.ConcurrentLinkedQueue
-import org.apache.flink.api.common.typeinfo.TypeInformation
-import org.apache.flink.api.common.typeutils.base.IntSerializer
-import org.apache.flink.core.fs.FileSystem
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
 import org.apache.flink.streaming.api.functions.sink.SinkFunction
-import org.apache.flink.streaming.api.functions.source.FromElementsFunction
-import org.apache.flink.streaming.connectors.kafka.table.SinkBufferFlushMode
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -19,7 +12,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Primary
 
-class CollectorSink: SinkFunction<Int> {
+class CollectorSink : SinkFunction<Int> {
     override fun invoke(value: Int, context: SinkFunction.Context) {
         results.add(value)
         super.invoke(value, context)
@@ -39,14 +32,11 @@ class FlinkStreamingSpringBootTest {
     @Autowired
     lateinit var flinkProperties: FlinkProperties
 
-//    @Autowired
-//    lateinit var outputFileName: String
-
     @Test
     fun localStreamExecution() {
         CollectorSink.clear()
         Thread.sleep(flinkProperties.terminationGracePeriodMs / 2) // fixme
-//        val result = String(Files.readAllBytes(Paths.get(outputFileName))).trim { it <= ' ' }
+        //        val result = String(Files.readAllBytes(Paths.get(outputFileName))).trim { it <= ' ' }
         val output = CollectorSink.results.toList()
         output.size shouldBe 1
 

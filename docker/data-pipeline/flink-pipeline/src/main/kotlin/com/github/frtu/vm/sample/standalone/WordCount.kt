@@ -14,50 +14,33 @@ import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindo
 import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.util.Collector
 
-const val TOPIC = "dbserver1.inventory.customers"
-
 data class Event(var word: String, var count: Int) {
     constructor() : this("", 0)
 }
 
-fun main() {
-    runJob()
-}
+class WordCount {
+    fun defineWorkflow(
+        env: StreamExecutionEnvironment,
+        source: Source<String, *, *>,
+        sourceParallelism: Int,
+        sinkApplier: (stream: DataStream<Event>) -> Unit
+    ) {
+        val textLines = env.fromSource(
+            source,
+            WatermarkStrategy.forMonotonousTimestamps(),
+            "Words"
+        ).setParallelism(sourceParallelism)
 
-fun runJob() {
-    val source = KafkaSource.builder<String>()
-        .setBootstrapServers("localhost:9092")
-        .setTopics(TOPIC)
-        .setStartingOffsets(OffsetsInitializer.earliest())
-        .setValueOnlyDeserializer(SimpleStringSchema())
-        .build()
+        val counts = textLines
+            .flatMap(Tokenizer())
+            .name("tokenizer")
+            .keyBy { value -> value.word }
+            .window(TumblingEventTimeWindows.of(Time.seconds(5)))
+            .reduce(Sum())
+            .name("counter")
 
-    val env = StreamExecutionEnvironment.getExecutionEnvironment()
-    defineWorkflow(env, source, 1) { workflow -> workflow.sinkTo(PrintSink()) }
-    env.execute()
-}
-
-fun defineWorkflow(
-    env: StreamExecutionEnvironment,
-    source: Source<String, *, *>,
-    sourceParallelism: Int,
-    sinkApplier: (stream: DataStream<Event>) -> Unit
-) {
-    val textLines = env.fromSource(
-        source,
-        WatermarkStrategy.forMonotonousTimestamps(),
-        "Words"
-    ).setParallelism(sourceParallelism)
-
-    val counts = textLines
-        .flatMap(Tokenizer())
-        .name("tokenizer")
-        .keyBy { value -> value.word }
-        .window(TumblingEventTimeWindows.of(Time.seconds(5)))
-        .reduce(Sum())
-        .name("counter")
-
-    sinkApplier(counts)
+        sinkApplier(counts)
+    }
 }
 
 class Tokenizer : FlatMapFunction<String, Event> {
@@ -74,4 +57,22 @@ class Sum : ReduceFunction<Event> {
     override fun reduce(value1: Event, value2: Event): Event {
         return Event(value1.word, value1.count + value2.count)
     }
+}
+
+// For local testing
+const val TOPIC = "dbserver1.inventory.customers"
+
+fun main() {
+    val env = StreamExecutionEnvironment.getExecutionEnvironment()
+
+    val source = KafkaSource.builder<String>()
+        .setBootstrapServers("localhost:9092")
+        .setTopics(TOPIC)
+        .setStartingOffsets(OffsetsInitializer.earliest())
+        .setValueOnlyDeserializer(SimpleStringSchema())
+        .build()
+
+    val wordCount = WordCount()
+    wordCount.defineWorkflow(env, source, 1) { workflow -> workflow.sinkTo(PrintSink()) }
+    env.execute()
 }
