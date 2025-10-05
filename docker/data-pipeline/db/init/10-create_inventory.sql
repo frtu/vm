@@ -3,7 +3,7 @@ SET search_path TO inventory, public;
 
 DROP TABLE IF EXISTS customers CASCADE;
 
-CREATE TABLE inventory.customers (
+CREATE TABLE customers (
   id SERIAL NOT NULL PRIMARY KEY,
   fname VARCHAR(255) NOT NULL,
   lname VARCHAR(255) NOT NULL,

@@ -1,4 +1,4 @@
-package com.github.frtu.vm
+package com.github.frtu.vm.sample
 
 import com.github.frtu.kotlin.utils.io.ResourceHelper
 import io.mockk.every

@@ -18,9 +18,9 @@ ext {
 group = 'com.github.frtu.vm.sample'
 version = '0.0.1-SNAPSHOT'
 if (flinkVersionNew) {
-    mainClassName = 'com.github.frtu.sample.DataStreamJob'
+    mainClassName = 'com.github.frtu.vm.sample.DataStreamJob'
 } else {
-    mainClassName = 'com.github.frtu.sample.StreamingJob'
+    mainClassName = 'com.github.frtu.vm.sample.StreamingJob'
 }
 description = """Flink Quickstart Job"""
 
