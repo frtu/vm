@@ -20,7 +20,7 @@ flink:
   job-name: "FlinkStreamingSpringBoot"
   max-client-rest-request-size-bytes: 2000000000
   remote-env-jar-files:
-    - "build/libs/flink-pipeline-0.1.0-SNAPSHOT.jar"
+    - "build/libs/flink-pipeline.jar"
 
   # Host behavior
   terminate: true

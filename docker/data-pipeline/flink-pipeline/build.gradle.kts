@@ -12,7 +12,7 @@ plugins {
     `java-library`
     `maven-publish`
     // shadow plugin to produce fat JARs
-    //    id("com.github.johnrengelman.shadow") version "7.1.2"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 
     // Application
     application
@@ -20,7 +20,7 @@ plugins {
 
 group = "com.github.frtu.vm"
 description = "flink-pipeline"
-//mainClassName = "com.github.frtu.vm.sample.standalone"
+val mainClassName = "com.github.frtu.vm.sample.embedded.FlinkStreamingApplication"
 
 dependencies {
     // frtu libs
@@ -57,6 +57,11 @@ dependencies {
     testImplementation(libs.test.mockk)
 }
 
+// Configure Jar main class
+application {
+    mainClass.set(mainClassName)
+}
+
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
@@ -80,6 +85,30 @@ tasks.withType<Test> {
 
 tasks.withType<Javadoc>() {
     options.encoding = "UTF-8"
+}
+
+tasks.shadowJar {
+    manifest {
+        attributes("Main-Class" to mainClassName)
+    }
+
+    // Exclude Flink core dependencies (provided by Cluster)
+    dependencies {
+        exclude(dependency("org.apache.flink:flink-java"))
+        exclude(dependency("org.apache.flink:flink-streaming-java"))
+        exclude(dependency("org.apache.flink:flink-clients"))
+        exclude(dependency("org.apache.flink:flink-connector-base"))
+    }
+
+    // Include Kafka connector and other runtime dependencies
+    mergeServiceFiles()
+
+    archiveClassifier.set("")
+    archiveVersion.set("")
+}
+
+tasks.build {
+    dependsOn(tasks.shadowJar)
 }
 
 publishing {

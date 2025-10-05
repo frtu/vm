@@ -24,11 +24,11 @@ class CollectorSink : SinkFunction<Int> {
     }
 }
 
-@SpringBootTest(classes = [FlinkStreamingSpringBoot::class])
+@SpringBootTest(classes = [FlinkStreamingApplication::class])
 @Import(
     FlinkStreamingSpringBootTestConfiguration::class,
 )
-class FlinkStreamingSpringBootTest {
+class FlinkStreamingApplicationTest {
     @Autowired
     lateinit var flinkProperties: FlinkProperties
 
