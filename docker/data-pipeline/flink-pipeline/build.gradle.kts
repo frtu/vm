@@ -1,16 +1,12 @@
 plugins {
     var kotlin = "1.9.25"
-    var springBoot = "3.3.8"
 
     // Core
     kotlin("jvm") version kotlin
     `java-library`
     `maven-publish`
-
-    // Spring
-    kotlin("plugin.spring") version kotlin
-    id("org.springframework.boot") version springBoot
-    id("io.spring.dependency-management") version "1.1.7"
+    // shadow plugin to produce fat JARs
+    //    id("com.github.johnrengelman.shadow") version "7.1.2"
 
     // Application
     application
@@ -18,6 +14,7 @@ plugins {
 
 group = "com.github.frtu.vm"
 description = "flink-pipeline"
+//mainClassName = "com.github.frtu.vm.sample.standalone"
 
 dependencies {
     // frtu libs

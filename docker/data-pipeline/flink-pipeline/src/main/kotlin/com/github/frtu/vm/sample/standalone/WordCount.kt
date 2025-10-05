@@ -1,4 +1,4 @@
-package com.github.frtu.vm.sample
+package com.github.frtu.vm.sample.standalone
 
 import org.apache.flink.api.common.eventtime.WatermarkStrategy
 import org.apache.flink.api.common.functions.FlatMapFunction
