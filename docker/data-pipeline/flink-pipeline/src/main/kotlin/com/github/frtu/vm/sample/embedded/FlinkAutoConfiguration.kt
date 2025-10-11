@@ -23,19 +23,23 @@ class FlinkAutoConfiguration {
 
     @Bean("flinkEnvironment")
     fun getFlinkEnvironment(flinkProperties: FlinkProperties): StreamExecutionEnvironment {
-        val config = org.apache.flink.configuration.Configuration()
-        val maxBytes: Long = flinkProperties.maxClientRestRequestSizeBytes
-        config.setString("rest.address", flinkProperties.jobManagerUrl)
-        config.setInteger("rest.port", flinkProperties.jobManagerPort)
-        config.setLong("rest.client.max-content-length", maxBytes)
-        config.setLong("rest.server.max-content-length", maxBytes)
-        config.setString("akka.framesize", maxBytes.toString() + "b")
-        return StreamExecutionEnvironment.createRemoteEnvironment(
-            flinkProperties.jobManagerUrl,
-            flinkProperties.jobManagerPort,
-            config,
-            *flinkProperties.remoteEnvJarFiles.toTypedArray<String>()
-        )
+        with(flinkProperties) {
+            val configuration = this.toConfiguration()
+            return if (jobManagerUrl.isNullOrEmpty()) {
+                logger.debug("Creating local env with configuration:{}", configuration)
+                StreamExecutionEnvironment.createLocalEnvironment(configuration)
+            } else {
+                logger.debug(
+                    "Creating remote env to jobmanager:'{}:{}' with configuration:{}",
+                    jobManagerUrl, jobManagerPort!!, configuration
+                )
+                StreamExecutionEnvironment.createRemoteEnvironment(
+                    jobManagerUrl, jobManagerPort!!, configuration,
+                    // All the JARs to upload
+                    *remoteEnvJarFiles.toTypedArray<String>()
+                )
+            }
+        }
     }
 
     private val logger = LoggerFactory.getLogger(this::class.java)

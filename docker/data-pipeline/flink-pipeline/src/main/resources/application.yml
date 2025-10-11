@@ -12,15 +12,15 @@ spring:
     bootstrap-servers: ${KAFKA_BROKERS:localhost:9092}
 
 flink:
-  # Job manager
-  job-manager-url: "localhost"
-  job-manager-port: 28081
-
   # Job name & file
   job-name: "FlinkStreamingSpringBoot"
-  max-client-rest-request-size-bytes: 2000000000
+
+  # Job manager remote URL
+  job-manager-url: "localhost"
+  job-manager-port: 28081
   remote-env-jar-files:
     - "build/libs/flink-pipeline.jar"
+  max-client-rest-request-size-bytes: 2000000000
 
   # Host behavior
   terminate: true
