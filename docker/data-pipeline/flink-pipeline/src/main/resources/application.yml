@@ -14,6 +14,7 @@ spring:
 flink:
   # Job name & file
   job-name: "FlinkStreamingSpringBoot"
+  job-parallelism: 2
 
   # Job manager remote URL
   job-manager-url: "localhost"

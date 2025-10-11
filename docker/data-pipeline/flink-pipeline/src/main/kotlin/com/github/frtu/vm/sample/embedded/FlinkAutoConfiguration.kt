@@ -26,8 +26,11 @@ class FlinkAutoConfiguration {
         with(flinkProperties) {
             val configuration = this.toConfiguration()
             return if (jobManagerUrl.isNullOrEmpty()) {
-                logger.debug("Creating local env with configuration:{}", configuration)
-                StreamExecutionEnvironment.createLocalEnvironment(configuration)
+                logger.debug(
+                    "Creating local env with jobParallelism:{} & configuration:{}",
+                    jobParallelism, configuration
+                )
+                StreamExecutionEnvironment.createLocalEnvironment(this.jobParallelism, configuration)
             } else {
                 logger.debug(
                     "Creating remote env to jobmanager:'{}:{}' with configuration:{}",

@@ -1,11 +1,13 @@
 package com.github.frtu.vm.sample.embedded
 
 import org.apache.flink.configuration.Configuration
+import org.apache.flink.configuration.CoreOptions
 import org.springframework.boot.context.properties.ConfigurationProperties
 
 @ConfigurationProperties(prefix = "flink")
 data class FlinkProperties(
     val jobName: String,
+    val jobParallelism: Int = CoreOptions.DEFAULT_PARALLELISM.defaultValue(),
 
     val jobManagerUrl: String? = null,
     val jobManagerPort: Int? = null,
