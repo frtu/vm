@@ -29,6 +29,16 @@ flink:
   termination-grace-period-ms: 30000
 ```
 
+## Runtime
+
+* Bash into container `data-pipeline-jobmanager-1`.
+* Go to folder `/workspace/flink-pipeline/build/libs` & check `flink-pipeline.jar` is present
+* Run
+
+```bash
+/opt/flink/bin/flink run /workspace/flink-pipeline/build/libs/flink-pipeline.jar
+```
+
 ## Release notes
 
 ### 0.0.1-SNAPSHOT - Current version
