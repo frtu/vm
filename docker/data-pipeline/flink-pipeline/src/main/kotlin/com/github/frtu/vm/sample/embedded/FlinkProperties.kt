@@ -1,5 +1,6 @@
 package com.github.frtu.vm.sample.embedded
 
+import java.io.Serializable
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.configuration.CoreOptions
 import org.springframework.boot.context.properties.ConfigurationProperties
@@ -16,7 +17,12 @@ data class FlinkProperties(
     val maxClientRestRequestSizeBytes: Long = 0,
     val terminate: Boolean = false,
     val terminationGracePeriodMs: Long = 0,
-) {
+) : Serializable {
+    companion object {
+        @JvmStatic
+        private val serialVersionUID: Long = 1
+    }
+
     fun toConfiguration(): Configuration {
         val maxBytes: Long = this.maxClientRestRequestSizeBytes
         val config = Configuration()

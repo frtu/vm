@@ -1,24 +1,29 @@
 package com.github.frtu.vm.sample.standalone
 
+import java.io.Serializable
 import org.apache.flink.api.common.eventtime.WatermarkStrategy
 import org.apache.flink.api.common.functions.FlatMapFunction
 import org.apache.flink.api.common.functions.ReduceFunction
-import org.apache.flink.api.common.serialization.SimpleStringSchema
 import org.apache.flink.api.connector.source.Source
-import org.apache.flink.connector.kafka.source.KafkaSource
-import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer
 import org.apache.flink.streaming.api.datastream.DataStream
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
-import org.apache.flink.streaming.api.functions.sink.PrintSink
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows
 import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.util.Collector
 
-data class Event(var word: String, var count: Int) {
+data class Event(var word: String, var count: Int) : Serializable {
     constructor() : this("", 0)
+
+    companion object {
+        @JvmStatic private val serialVersionUID: Long = 1
+    }
 }
 
-class WordCount {
+class WordCount : Serializable {
+    companion object {
+        @JvmStatic private val serialVersionUID: Long = 1
+    }
+
     fun defineWorkflow(
         env: StreamExecutionEnvironment,
         source: Source<String, *, *>,
@@ -43,7 +48,11 @@ class WordCount {
     }
 }
 
-class Tokenizer : FlatMapFunction<String, Event> {
+class Tokenizer : FlatMapFunction<String, Event>, Serializable {
+    companion object {
+        @JvmStatic private val serialVersionUID: Long = 1
+    }
+
     override fun flatMap(line: String, out: Collector<Event>) {
         line.lowercase()
             .split("\\W+")
@@ -53,7 +62,11 @@ class Tokenizer : FlatMapFunction<String, Event> {
     }
 }
 
-class Sum : ReduceFunction<Event> {
+class Sum : ReduceFunction<Event>, Serializable {
+    companion object {
+        @JvmStatic private val serialVersionUID: Long = 1
+    }
+
     override fun reduce(value1: Event, value2: Event): Event {
         return Event(value1.word, value1.count + value2.count)
     }

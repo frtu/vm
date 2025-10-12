@@ -22,14 +22,21 @@ class FlinkExecutor(
         // execute in another thread, so we don't hold it up
         try {
             logger.info("Running flink job {}", flinkProperties.jobName)
-            taskExecutor.execute {
-                try {
-                    flinkEnv.execute(flinkProperties.jobName)
-                } catch (e: Exception) {
-                    logger.error("Failed to submit flink job", e)
-                    conditionallyExitSpringApp(1)
-                }
-            }
+
+            // Simple task
+            flinkEnv.fromElements(1, 2, 3, 4, 5)
+                .map { i -> 2 * i }
+                .print()
+
+            // Deactivate application execution
+//            taskExecutor.execute {
+//                try {
+//                    flinkEnv.execute(flinkProperties.jobName)
+//                } catch (e: Exception) {
+//                    logger.error("Failed to submit flink job", e)
+//                    conditionallyExitSpringApp(1)
+//                }
+//            }
             Thread.sleep(flinkProperties.terminationGracePeriodMs)
             conditionallyExitSpringApp(0)
         } catch (e: InterruptedException) {
