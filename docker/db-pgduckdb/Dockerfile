@@ -8,6 +8,8 @@ ARG POSTGRES_VERSION=17
 FROM postgres:${POSTGRES_VERSION}-bookworm AS builder
 ARG POSTGRES_VERSION
 ARG PG_DUCKDB_VERSION=main
+# Optional: override the embedded DuckDB version (community extensions are built per DuckDB version)
+ARG DUCKDB_VERSION=
 
 RUN apt-get update -qq && \
     apt-get install -y \
@@ -24,6 +26,12 @@ ENV CCACHE_DIR=/ccache
 RUN git clone --depth 1 --branch ${PG_DUCKDB_VERSION} --recurse-submodules --shallow-submodules \
     https://github.com/duckdb/pg_duckdb.git /build
 WORKDIR /build
+
+RUN if [ -n "${DUCKDB_VERSION}" ]; then \
+      git -C third_party/duckdb fetch --depth 1 origin tag ${DUCKDB_VERSION} && \
+      git -C third_party/duckdb checkout ${DUCKDB_VERSION} && \
+      sed -i "s/^DUCKDB_VERSION = .*/DUCKDB_VERSION = ${DUCKDB_VERSION}/" Makefile; \
+    fi && grep '^DUCKDB_VERSION' Makefile
 
 # build & install into /out for packaging
 RUN --mount=type=cache,target=/ccache/ echo "Available CPUs=$(nproc)" && make -j$(nproc)

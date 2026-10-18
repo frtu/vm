@@ -22,6 +22,7 @@ Set in ```.env``` then rebuild with ```docker compose build``` :
 
 * ```POSTGRESQL_VERSION``` : postgres major version (pg_duckdb supports 14 to 18), default ```17```
 * ```PG_DUCKDB_VERSION``` : git tag or branch of [pg_duckdb](https://github.com/duckdb/pg_duckdb/tags), default ```main```
+* ```DUCKDB_VERSION``` : override the embedded DuckDB version (empty = pg_duckdb default), default ```v1.5.5```. Community extensions are built per DuckDB version, and ```ossie``` is only published for ```v1.5.5``` (pg_duckdb ```main``` ships ```v1.5.4```, ```v1.1.1``` ships ```v1.4.3```).
 
 ### Connect
 
