@@ -7,7 +7,7 @@ ARG POSTGRES_VERSION=17
 ###
 FROM postgres:${POSTGRES_VERSION}-bookworm AS builder
 ARG POSTGRES_VERSION
-ARG PG_DUCKDB_VERSION=v1.1.1
+ARG PG_DUCKDB_VERSION=main
 
 RUN apt-get update -qq && \
     apt-get install -y \

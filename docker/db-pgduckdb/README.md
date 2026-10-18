@@ -21,7 +21,7 @@ You will be able to have :
 Set in ```.env``` then rebuild with ```docker compose build``` :
 
 * ```POSTGRESQL_VERSION``` : postgres major version (pg_duckdb supports 14 to 18), default ```17```
-* ```PG_DUCKDB_VERSION``` : git tag or branch of [pg_duckdb](https://github.com/duckdb/pg_duckdb/tags), default ```v1.1.1```
+* ```PG_DUCKDB_VERSION``` : git tag or branch of [pg_duckdb](https://github.com/duckdb/pg_duckdb/tags), default ```main```
 
 ### Connect
 

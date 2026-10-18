@@ -1,12 +1,13 @@
 # https://github.com/duckdb/pg_duckdb
 services:
   postgres:
-    image: postgres-pgduckdb:${POSTGRESQL_VERSION:-17}-${PG_DUCKDB_VERSION:-v1.1.1}
-    build:
-      context: .
-      args:
-        POSTGRES_VERSION: ${POSTGRESQL_VERSION:-17}
-        PG_DUCKDB_VERSION: ${PG_DUCKDB_VERSION:-v1.1.1}
+    image: pgduckdb/pgduckdb:${POSTGRESQL_VERSION:-17}-${PG_DUCKDB_VERSION:-main}
+    # build:
+    #   context: .
+    #   args:
+    #     POSTGRES_VERSION: ${POSTGRESQL_VERSION:-17}
+    #     PG_DUCKDB_VERSION: ${PG_DUCKDB_VERSION:-main}
+    #     DUCKDB_VERSION: ${DUCKDB_VERSION:-}
     #container_name: postgres
     hostname: database
     restart: always
