@@ -8,6 +8,8 @@ services:
     #     POSTGRES_VERSION: ${POSTGRESQL_VERSION:-17}
     #     PG_DUCKDB_VERSION: ${PG_DUCKDB_VERSION:-main}
     #     DUCKDB_VERSION: ${DUCKDB_VERSION:-}
+    # Image defaults to USER postgres, which cannot chown the bind-mounted PGDATA on macOS : start as root, entrypoint drops to postgres
+    user: root
     #container_name: postgres
     hostname: database
     restart: always
