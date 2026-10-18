@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0.dev0",
+  "name": "sales",
+  "datasets": [
+    {"name": "orders", "source": "pgduckdb.public.orders", "fields": [
+      {"name": "customer_id", "expression": {"dialects": [{"dialect": "ANSI_SQL", "expression": "customer_id"}]}},
+      {"name": "amount",      "expression": {"dialects": [{"dialect": "ANSI_SQL", "expression": "amount"}]}}]},
+    {"name": "customers", "source": "pgduckdb.public.customers", "primary_key": ["customer_id"], "fields": [
+      {"name": "customer_id", "expression": {"dialects": [{"dialect": "ANSI_SQL", "expression": "customer_id"}]}},
+      {"name": "country",     "expression": {"dialects": [{"dialect": "ANSI_SQL", "expression": "country"}]}}]}],
+  "relationships": [{"name": "orders_to_customers", "from": "orders", "to": "customers",
+                     "from_columns": ["customer_id"], "to_columns": ["customer_id"]}],
+  "metrics": [{"name": "revenue", "expression": {"dialects": [
+               {"dialect": "ANSI_SQL", "expression": "SUM(orders.amount)"}]}}]
+}

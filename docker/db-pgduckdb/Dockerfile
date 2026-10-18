@@ -48,5 +48,7 @@ RUN apt-get update -qq && \
 
 # Automatically enable pg_duckdb
 RUN echo "shared_preload_libraries='pg_duckdb'" >> /usr/share/postgresql/postgresql.conf.sample
+# Allow community extensions (ossie, duckdb_mcp)
+RUN echo "duckdb.allow_community_extensions = true" >> /usr/share/postgresql/postgresql.conf.sample
 
 COPY --from=builder /out /

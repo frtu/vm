@@ -16,6 +16,8 @@ services:
     volumes:
       - $PWD/db/data:/var/lib/postgresql/data
       - $PWD/db/init:/docker-entrypoint-initdb.d/
+      # Ossie semantic models (YAML/JSON) for ossie_load()
+      - $PWD/models:/models:ro
     environment:
       POSTGRES_USER: ${ADMIN_USER:-root}
       POSTGRES_PASSWORD: ${ADMIN_PASSWORD:-admin}

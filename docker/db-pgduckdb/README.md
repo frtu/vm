@@ -44,12 +44,50 @@ Run standard PostgreSQL queries, or force the DuckDB analytical execution engine
 SET duckdb.force_execution = true;
 ```
 
+## DuckDB-Ossie semantic layer
+
+[ossie](https://duckdb.org/community_extensions/extensions/ossie) parses Apache Ossie semantic models (YAML/JSON) and answers semantic queries. Inside pg_duckdb, DuckDB functions are called through ```duckdb.raw_query``` / ```duckdb.query```, and Postgres tables are visible in DuckDB as ```pgduckdb.<schema>.<table>```.
+
+Models go into ```./models``` (mounted read-only at ```/models```). Example with ```models/sales_model.json``` (superuser, to read files) :
+
+```
+CREATE TABLE orders(order_id INTEGER, customer_id INTEGER, amount DECIMAL(10,2));
+CREATE TABLE customers(customer_id INTEGER, country VARCHAR);
+INSERT INTO orders VALUES (1,1,100.00),(2,1,250.00),(3,2,75.00);
+INSERT INTO customers VALUES (1,'US'),(2,'DE');
+
+-- Load the model in the session DuckDB instance
+SELECT duckdb.raw_query($$ CALL ossie_load('/models/sales_model.json') $$);
+
+-- Discover the vocabulary
+SELECT * FROM duckdb.query($$ SELECT name, expression FROM ossie_metrics() $$);
+SELECT * FROM duckdb.query($$ SELECT dataset, name FROM ossie_fields() $$);
+
+-- Semantic query : metrics, dimensions, filters
+SELECT * FROM duckdb.query($$ SELECT * FROM ossie_query(['revenue'], ['customers.country']) $$);
+
+-- Or only compile to SQL
+SELECT * FROM duckdb.query($$ SELECT ossie_compile(['revenue'], ['customers.country'], []) $$);
+```
+
+Install manually (e.g. in another database) :
+
+```
+SET duckdb.allow_community_extensions = true;
+SELECT duckdb.install_extension('ossie', 'community');
+SELECT duckdb.install_extension('duckdb_mcp', 'community');
+SELECT * FROM duckdb.extensions;
+```
+
+> ```duckdb_mcp``` is installed for its MCP **client** functions (```ATTACH ... (TYPE mcp)```, ```mcp_call_tool```). Its stdio MCP **server** mode (```mcp_server_start('stdio')```) needs to own the process stdin/stdout, which a Postgres backend does not have, so serving the semantic layer to an AI client (Claude Desktop) requires a standalone DuckDB CLI process instead.
+
 ## Auto init DB
 
 Scripts in ```./db/init``` run on first start (empty ```./db/data```) :
 
 * ```01-init.sh``` : create app user, database, schema & extensions
 * ```02-enable-motherduck.sql``` : enable [MotherDuck](https://motherduck.com/) if ```MOTHERDUCK_TOKEN``` is set in ```.env``` (no-op otherwise)
+* ```03-install-ossie.sh``` : install ```ossie``` & ```duckdb_mcp``` community extensions in ```postgres``` and the app database
 
 Reset with ```docker compose down && rm -rf db/data```.
 
