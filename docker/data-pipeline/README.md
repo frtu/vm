@@ -1,7 +1,9 @@
 data-pipeline
 ===
 
-Start with ```docker-compose up```
+Start with ```docker-compose up``` (or ```scripts/stack.sh up```)
+
+> Operational scripts for humans & AI agents (stack, health, db, CDC connectors, Kafka, Flink, Elasticsearch): see [scripts/README.md](scripts/README.md). AI agents: [AGENTS.md](AGENTS.md) and skill [skills/data-pipeline](skills/data-pipeline/SKILL.md).
 
 Open Notebook at : [http://localhost:8888](http://localhost:8888)
 
