@@ -31,16 +31,16 @@ No local `psql` or Kafka CLI is needed: those commands run inside the containers
 
 ## Scripts
 
-| Script | Area | Commands |
-|---|---|---|
-| `stack.sh` | Docker compose | `up [svc...]`, `down`, `status`, `logs [svc] [n]`, `restart <svc>`, `urls`, `reset-db --yes` |
-| `health.sh` | All components | `[--wait <seconds>]` |
-| `db.sh` | PostgreSQL | `psql`, `query "<sql>"` (or `-` for stdin), `file <x.sql>`, `tables [schema]`, `slots` |
-| `connector.sh` | Kafka Connect / Debezium | `list`, `register [file.json]`, `status <name>`, `config <name>`, `restart <name>`, `delete <name>`, `plugins` |
-| `kafka.sh` | Kafka | `topics`, `describe <topic>`, `consume <topic> [max] [--tail]`, `produce <topic>`, `create <topic> [partitions]`, `groups` |
-| `flink.sh` | Flink | `build [project]`, `submit [project] [args]`, `jobs`, `job <id>`, `cancel <id>`, `overview` |
-| `es.sh` | Elasticsearch | `health`, `indices`, `count <i>`, `search <i> [q] [size]`, `mapping <i>`, `delete-index <i> --yes`, `raw <METHOD> <path> [json]` |
-| `_lib.sh` | shared | sourced by the others (env loading, logging, dispatch). Not executable. |
+| Script         | Area                     | Commands                                                                                                                         |
+| -------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| `stack.sh`     | Docker compose           | `up [svc...]`, `down`, `status`, `logs [svc] [n]`, `restart <svc>`, `urls`, `reset-db --yes`                                     |
+| `health.sh`    | All components           | `[--wait <seconds>]`                                                                                                             |
+| `db.sh`        | PostgreSQL               | `psql`, `query "<sql>"` (or `-` for stdin), `file <x.sql>`, `tables [schema]`, `slots`                                           |
+| `connector.sh` | Kafka Connect / Debezium | `list`, `register [file.json]`, `status <name>`, `config <name>`, `restart <name>`, `delete <name>`, `plugins`                   |
+| `kafka.sh`     | Kafka                    | `topics`, `describe <topic>`, `consume <topic> [max] [--tail]`, `produce <topic>`, `create <topic> [partitions]`, `groups`       |
+| `flink.sh`     | Flink                    | `build [project]`, `submit [project] [args]`, `jobs`, `job <id>`, `cancel <id>`, `overview`                                      |
+| `es.sh`        | Elasticsearch            | `health`, `indices`, `count <i>`, `search <i> [q] [size]`, `mapping <i>`, `delete-index <i> --yes`, `raw <METHOD> <path> [json]` |
+| `_lib.sh`      | shared                   | sourced by the others (env loading, logging, dispatch). Not executable.                                                          |
 
 ## Human usage
 
@@ -82,7 +82,7 @@ Agents get two entry points, both agent-agnostic plain Markdown:
 
 | File | Purpose |
 |---|---|
-| [`AGENTS.md`](../AGENTS.md) | Picked up automatically by agents that read `AGENTS.md` (Codex, Cursor, Copilot, Gemini CLI, ...): how to start, check start up and check the stack |
+| [`AGENTS.md`](../AGENTS.md) | Picked up automatically by agents that read `AGENTS.md` (Codex, Cursor, Copilot, Gemini CLI, ...): agent-only rules; points to the Start / Check start up / Check sections of [`README.md`](../README.md) |
 | [`skills/data-pipeline/SKILL.md`](../skills/data-pipeline/SKILL.md) | Full playbook in the open [Agent Skills](https://agentskills.io) format: command map, workflows (bring up, verify CDC, deploy Flink job), safety rules |
 
 ### With skills support
