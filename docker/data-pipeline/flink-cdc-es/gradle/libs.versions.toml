@@ -1,0 +1,40 @@
+[versions]
+# flink : must match the cluster image in ../docker-compose.yml (flink:2.1.0-...)
+flink = "2.1.0"
+flink-kafka = "5.0.0-2.1"
+flink-elasticsearch = "4.0.0-2.0"
+
+# core
+jackson = "2.17.2"
+log4j = "2.24.3"
+
+# base
+kotlin = "2.1.20"
+
+# test
+junit = "5.12.2"
+kotest = "5.9.1"
+mockk = "1.14.3"
+
+[libraries]
+# flink (provided by the cluster)
+flink-streaming-java = { group = "org.apache.flink", name = "flink-streaming-java", version.ref = "flink" }
+flink-clients = { group = "org.apache.flink", name = "flink-clients", version.ref = "flink" }
+flink-connector-base = { group = "org.apache.flink", name = "flink-connector-base", version.ref = "flink" }
+# flink connectors (bundled in the job jar)
+flink-connector-kafka = { group = "org.apache.flink", name = "flink-connector-kafka", version.ref = "flink-kafka" }
+flink-connector-elasticsearch8 = { group = "org.apache.flink", name = "flink-connector-elasticsearch8", version.ref = "flink-elasticsearch" }
+
+# serialization
+jackson-kotlin = { group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version.ref = "jackson" }
+
+# logging (provided by the cluster, used locally for run / tests)
+log4j-slf4j-impl = { group = "org.apache.logging.log4j", name = "log4j-slf4j-impl", version.ref = "log4j" }
+log4j-api = { group = "org.apache.logging.log4j", name = "log4j-api", version.ref = "log4j" }
+log4j-core = { group = "org.apache.logging.log4j", name = "log4j-core", version.ref = "log4j" }
+
+# test
+junit-bom = { group = "org.junit", name = "junit-bom", version.ref = "junit" }
+test-runner = { group = "io.kotest", name = "kotest-runner-junit5", version.ref = "kotest" }
+test-assertions = { group = "io.kotest", name = "kotest-assertions-core-jvm", version.ref = "kotest" }
+test-mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }

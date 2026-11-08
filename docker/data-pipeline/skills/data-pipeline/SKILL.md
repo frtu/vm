@@ -54,7 +54,7 @@ Service names: `postgres`, `kafka`, `kafka-connect`, `kafka-ui`, `redpanda`,
 5. `scripts/kafka.sh topics`, then `scripts/kafka.sh consume <topic.prefix>.<schema>.<table> 5`.
 
 **Deploy a Flink job**
-1. `scripts/flink.sh build [project]` (default `flink-pipeline`).
+1. `scripts/flink.sh build [project]` (default `flink-cdc-es`, the CDC job).
 2. `scripts/flink.sh submit [project]`, then `scripts/flink.sh jobs` to see it `RUNNING`.
 
 ## Rules

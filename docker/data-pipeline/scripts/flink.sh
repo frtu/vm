@@ -4,7 +4,7 @@
 # Usage: scripts/flink.sh <command> [args]
 #
 # Commands:
-#   build [project]           Build the fat jar with Gradle (default project: flink-pipeline)
+#   build [project]           Build the fat jar with Gradle (default project: flink-cdc-es)
 #   submit [project] [args]   Submit <project>/build/libs/<project>.jar to the jobmanager
 #                             (detached). Extra args are passed to the job.
 #   jobs                      List jobs (id, name, state)
@@ -16,7 +16,7 @@
 source "$(dirname "$0")/_lib.sh"
 require curl
 
-DEFAULT_PROJECT="flink-pipeline"
+DEFAULT_PROJECT="flink-cdc-es"
 
 cmd_build() {
   local project="${1:-$DEFAULT_PROJECT}"
