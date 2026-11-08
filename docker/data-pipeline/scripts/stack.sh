@@ -12,6 +12,9 @@
 #   urls                Print the UI / API endpoints
 #   reset-db            DESTRUCTIVE: stop postgres, wipe db/data, restart so db/init re-runs.
 #                       Requires --yes.
+#   jupyter <action>    Manage the Jupyter notebook server only:
+#                         up | down | restart | status | logs [n] | url | open
+#                       (open launches the browser; url prints it)
 source "$(dirname "$0")/_lib.sh"
 require docker
 
@@ -57,6 +60,26 @@ cmd_reset_db() {
   rm -rf "$STACK_DIR/db/data"
   dc up -d postgres
   log "postgres restarted; db/init scripts will run on first boot (see: stack.sh logs postgres)"
+}
+
+cmd_jupyter() {
+  local action="${1:-status}"
+  shift || true
+  case "$action" in
+    up)      dc up -d jupyter && log "Jupyter: $JUPYTER_URL (notebooks in ./notebooks, data in ./data)" ;;
+    down)    dc stop jupyter && dc rm -f jupyter ;;
+    restart) dc restart jupyter ;;
+    status)  dc ps --format 'table {{.Service}}\t{{.State}}\t{{.Status}}\t{{.Ports}}' jupyter ;;
+    logs)    dc logs --no-color --tail "${1:-100}" jupyter ;;
+    url)     echo "$JUPYTER_URL" ;;
+    open)
+      curl -fsS -o /dev/null --max-time 5 "$JUPYTER_URL" || die "Jupyter is not reachable, run: stack.sh jupyter up"
+      if command -v open >/dev/null 2>&1; then open "$JUPYTER_URL"
+      elif command -v xdg-open >/dev/null 2>&1; then xdg-open "$JUPYTER_URL"
+      else echo "$JUPYTER_URL"; fi
+      ;;
+    *) die "usage: stack.sh jupyter up|down|restart|status|logs [n]|url|open" ;;
+  esac
 }
 
 dispatch "$@"

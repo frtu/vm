@@ -28,6 +28,7 @@ Every script supports `help`, e.g. `scripts/kafka.sh help`.
 | Wait until ready | `scripts/health.sh --wait 180` |
 | Logs | `scripts/stack.sh logs <service> [lines]` |
 | Endpoints | `scripts/stack.sh urls` |
+| Jupyter | `scripts/stack.sh jupyter up / down / status / logs / url` (`open` launches a browser: only if the user asks) |
 | SQL | `scripts/db.sh query "SELECT ..."`, `scripts/db.sh tables`, `scripts/db.sh file x.sql` |
 | CDC state in Postgres | `scripts/db.sh slots` |
 | Connectors | `scripts/connector.sh list / register [file] / status <n> / restart <n>` |

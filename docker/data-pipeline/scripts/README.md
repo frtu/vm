@@ -33,7 +33,7 @@ No local `psql` or Kafka CLI is needed: those commands run inside the containers
 
 | Script         | Area                     | Commands                                                                                                                         |
 | -------------- | ------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| `stack.sh`     | Docker compose           | `up [svc...]`, `down`, `status`, `logs [svc] [n]`, `restart <svc>`, `urls`, `reset-db --yes`                                     |
+| `stack.sh`     | Docker compose           | `up [svc...]`, `down`, `status`, `logs [svc] [n]`, `restart <svc>`, `urls`, `reset-db --yes`, `jupyter up\|down\|restart\|status\|logs\|url\|open`                                     |
 | `health.sh`    | All components           | `[--wait <seconds>]`                                                                                                             |
 | `db.sh`        | PostgreSQL               | `psql`, `query "<sql>"` (or `-` for stdin), `file <x.sql>`, `tables [schema]`, `slots`                                           |
 | `connector.sh` | Kafka Connect / Debezium | `list`, `register [file.json]`, `status <name>`, `config <name>`, `restart <name>`, `delete <name>`, `plugins`                   |
@@ -51,6 +51,10 @@ cd docker/data-pipeline
 scripts/stack.sh up
 scripts/health.sh --wait 180
 scripts/stack.sh urls
+
+# Jupyter only
+scripts/stack.sh jupyter up
+scripts/stack.sh jupyter open         # opens http://localhost:8888 in the browser
 
 # Source database
 scripts/db.sh tables

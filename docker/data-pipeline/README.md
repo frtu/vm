@@ -13,6 +13,7 @@ AI agents: see [AGENTS.md](AGENTS.md) and the skill [skills/data-pipeline](skill
 ```bash
 scripts/stack.sh up                 # all services, detached (same as: docker compose up -d)
 scripts/stack.sh up postgres kafka  # or a subset
+scripts/stack.sh jupyter up         # Jupyter only (also: down | restart | status | logs | url | open)
 ```
 
 The first start pulls large images (Elasticsearch, Flink, Kafka) and can take minutes.
@@ -55,7 +56,7 @@ Deeper, per component:
 
 ## Endpoints
 
-Open Notebook at : [http://localhost:8888](http://localhost:8888)
+Open Notebook at : [http://localhost:8888](http://localhost:8888) (or `scripts/stack.sh jupyter open`)
 
 ### Data in motion
 
