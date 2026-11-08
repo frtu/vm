@@ -1,0 +1,28 @@
+{
+    "settings": {
+        "index": {
+            "number_of_shards": 1,
+            "number_of_replicas": 0,
+            "default_pipeline": "customers-cdc"
+        }
+    },
+    "mappings": {
+        "dynamic": false,
+        "properties": {
+            "id": { "type": "long" },
+            "first_name": { "type": "text", "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } } },
+            "last_name": { "type": "text", "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } } },
+            "full_name": { "type": "text", "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } } },
+            "email": { "type": "text", "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } } },
+            "street": { "type": "text", "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } } },
+            "zip": { "type": "text", "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } } },
+            "city": { "type": "text", "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } } },
+            "phone": { "type": "text", "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } } },
+            "status": { "type": "long" },
+            "registered": { "type": "date" },
+            "cdc_op": { "type": "text", "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } } },
+            "cdc_source_ts": { "type": "date" },
+            "cdc_processed_ts": { "type": "date" }
+        }
+    }
+}

@@ -18,6 +18,8 @@ load it if your agent supports skills, otherwise read it as instructions.
 ## Agent-only rules
 
 - Operate the stack **only through `scripts/`**, not raw `docker` / `curl` commands.
+- Change the domain schema only through new Flyway files in `flink-cdc-es/domain/migration`
+  (`scripts/migrate.sh`), never by editing an applied `V<n>__*.sql`.
 - Never pass `--yes` (`stack.sh reset-db`, `es.sh delete-index`) without the
   user's explicit confirmation in the current conversation.
 - Use non-interactive commands: `db.sh query` not `db.sh psql`; pipe stdin into

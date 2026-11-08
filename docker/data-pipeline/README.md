@@ -53,6 +53,10 @@ Deeper, per component:
 | Kafka | `scripts/kafka.sh topics`, `scripts/kafka.sh consume <topic> 5` |
 | Flink | `scripts/flink.sh overview`, `scripts/flink.sh jobs` |
 | Elasticsearch | `scripts/es.sh health` (`green`/`yellow`), `scripts/es.sh indices` |
+| Domain migrations | `scripts/migrate.sh info` (Flyway, `flink-cdc-es/domain/migration`) |
+
+CDC to ES without Flink (`inventory.customers` -> index `customers_connect`, Debezium + Elasticsearch sink
+in Kafka Connect): see [flink-cdc-es/domain](flink-cdc-es/domain/README.md) and the notebook `CDC to ES.ipynb`.
 
 ## Endpoints
 

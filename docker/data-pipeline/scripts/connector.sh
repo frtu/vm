@@ -12,6 +12,9 @@
 #   restart <name>            Restart connector and its tasks
 #   delete <name>             Delete a connector
 #   plugins                   List installed connector plugins
+#   install-es-sink [version] Download the Confluent Elasticsearch sink plugin into
+#                             debezium-connector/plugins (default 15.0.2), then
+#                             recreate kafka-connect: stack.sh up kafka-connect
 source "$(dirname "$0")/_lib.sh"
 require curl
 
@@ -37,5 +40,23 @@ cmd_config()  { need_name "${1:-}"; api "$KAFKA_CONNECT_URL/connectors/$1/config
 cmd_restart() { need_name "${1:-}"; api -X POST "$KAFKA_CONNECT_URL/connectors/$1/restart?includeTasks=true" | pretty; }
 cmd_delete()  { need_name "${1:-}"; api -X DELETE "$KAFKA_CONNECT_URL/connectors/$1" && log "deleted $1"; }
 cmd_plugins() { api "$KAFKA_CONNECT_URL/connector-plugins" | pretty; }
+
+ES_SINK_DIR="$STACK_DIR/debezium-connector/plugins/kafka-connect-elasticsearch"
+
+cmd_install_es_sink() {
+  require unzip
+  local version="${1:-15.0.2}" tmp
+  local name="confluentinc-kafka-connect-elasticsearch-$version"
+  tmp="$(mktemp -d)"
+  log "downloading $name"
+  curl -fsSL -o "$tmp/$name.zip" \
+    "https://hub-downloads.confluent.io/api/plugins/confluentinc/kafka-connect-elasticsearch/versions/$version/$name.zip"
+  unzip -q "$tmp/$name.zip" -d "$tmp"
+  mkdir -p "$ES_SINK_DIR"
+  rm -rf "${ES_SINK_DIR:?}"/*
+  cp -R "$tmp/$name"/. "$ES_SINK_DIR"/
+  rm -rf "$tmp"
+  log "installed in $ES_SINK_DIR; load it with: scripts/stack.sh up kafka-connect"
+}
 
 dispatch "$@"

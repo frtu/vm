@@ -1,0 +1,44 @@
+{
+    "from": {{from}}{{^from}}0{{/from}},
+    "size": {{size}}{{^size}}10{{/size}},
+
+    {{#result_fields.size}}
+    "_source":  {{#toJson}}result_fields{{/toJson}},
+    {{/result_fields.size}}
+
+    {{#sorts.size}}
+    "sort": {{#toJson}}sorts{{/toJson}},
+    {{/sorts.size}}
+
+    "query": {
+        "bool": {
+            "must": [
+                {{#query}}
+                { "multi_match": { "query": "{{query}}", "fields": ["full_name", "first_name", "last_name", "email"] } }
+                {{/query}}
+                {{^query}}
+                { "match_all": {} }
+                {{/query}}
+            ],
+            "filter": [
+                {{#city}}
+                { "term": { "city.keyword": "{{city}}" } }
+                {{/city}}
+            ]
+        }
+    },
+    "aggs": {
+      "city": {
+        "terms": {
+          "field": "city.keyword",
+          "size": 100
+        }
+      },
+      "status": {
+        "terms": {
+          "field": "status",
+          "size": 10
+        }
+      }
+    }
+}

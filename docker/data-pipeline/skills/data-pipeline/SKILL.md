@@ -32,12 +32,15 @@ Every script supports `help`, e.g. `scripts/kafka.sh help`.
 | SQL | `scripts/db.sh query "SELECT ..."`, `scripts/db.sh tables`, `scripts/db.sh file x.sql` |
 | CDC state in Postgres | `scripts/db.sh slots` |
 | Connectors | `scripts/connector.sh list / register [file] / status <n> / restart <n>` |
+| ES sink plugin | `scripts/connector.sh install-es-sink`, then `scripts/stack.sh up kafka-connect` |
+| Domain migrations (Flyway) | `scripts/migrate.sh info / migrate [version] / validate` |
 | Topics | `scripts/kafka.sh topics`, `scripts/kafka.sh consume <topic> [max]` |
 | Flink | `scripts/flink.sh build`, `scripts/flink.sh submit`, `scripts/flink.sh jobs` |
 | Elasticsearch | `scripts/es.sh indices`, `scripts/es.sh search <index> "<q>"` |
 
 Service names: `postgres`, `kafka`, `kafka-connect`, `kafka-ui`, `redpanda`,
-`jobmanager`, `taskmanager`, `elasticsearch`, `kibana`, `jupyter`.
+`jobmanager`, `taskmanager`, `elasticsearch`, `kibana`, `jupyter`, and the one-shot
+`flyway` (profile `migration`, run by `migrate.sh`).
 
 ## Workflows
 
@@ -52,6 +55,12 @@ Service names: `postgres`, `kafka`, `kafka-connect`, `kafka-ui`, `redpanda`,
 3. `scripts/db.sh slots` to confirm the replication slot is active.
 4. Change a row with `scripts/db.sh query "UPDATE ..."`.
 5. `scripts/kafka.sh topics`, then `scripts/kafka.sh consume <topic.prefix>.<schema>.<table> 5`.
+
+**CDC to ES without Flink (domain `flink-cdc-es/domain`, table `inventory.customers` -> index `customers_connect`)**
+1. `scripts/connector.sh plugins` must list `ElasticsearchSinkConnector`; else `install-es-sink` + `stack.sh up kafka-connect`.
+2. `scripts/migrate.sh migrate 1` (create tables), then create the ingest pipeline + index and register
+   `customers-postgres-source` / `customers-es-sink` (notebook `CDC to ES.ipynb`, or `connector.sh register <file>`).
+3. `scripts/migrate.sh migrate` (insert), then `scripts/es.sh count customers_connect`.
 
 **Deploy a Flink job**
 1. `scripts/flink.sh build [project]` (default `flink-cdc-es`, the CDC job).

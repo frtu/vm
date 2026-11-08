@@ -1,0 +1,16 @@
+{
+    "description": "Debezium row of inventory.customers (unwrapped, add.fields=op,source.ts_ms,ts_ms) -> customer document, same as flink-cdc-es CustomerDocuments",
+    "processors": [
+        { "rename": { "field": "fname", "target_field": "first_name", "ignore_missing": true } },
+        { "rename": { "field": "lname", "target_field": "last_name", "ignore_missing": true } },
+        { "rename": { "field": "__op", "target_field": "cdc_op", "ignore_missing": true } },
+        {
+            "script": {
+                "lang": "painless",
+                "description": "full_name, registered (MicroTimestamp -> ISO-8601), CDC timestamps (ms -> ISO-8601)",
+                "source": "List parts = new ArrayList(); if (ctx.first_name != null) { parts.add(ctx.first_name); } if (ctx.last_name != null) { parts.add(ctx.last_name); } ctx.full_name = parts.isEmpty() ? null : String.join(' ', parts); if (ctx.registered instanceof Number) { ctx.registered = Instant.EPOCH.plus(((Number) ctx.registered).longValue(), ChronoUnit.MICROS).toString(); } if (ctx.__source_ts_ms instanceof Number) { ctx.cdc_source_ts = Instant.ofEpochMilli(((Number) ctx.__source_ts_ms).longValue()).toString(); } if (ctx.__ts_ms instanceof Number) { ctx.cdc_processed_ts = Instant.ofEpochMilli(((Number) ctx.__ts_ms).longValue()).toString(); }"
+            }
+        },
+        { "remove": { "field": ["__source_ts_ms", "__ts_ms", "__deleted"], "ignore_missing": true } }
+    ]
+}

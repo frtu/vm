@@ -1,0 +1,22 @@
+{
+    "ingest_pipelines": [
+        {
+          "filename": "customer_ingest_pipeline.json",
+          "name": "customers-cdc"
+        }
+    ],
+    "index_templates": [
+        {
+          "filename": "customer_index_template.json",
+          "name": "inventory-customers",
+          "index_patterns": ["customers_connect*"],
+          "index": "customers_connect"
+       }
+    ],
+    "search_templates": [
+      {
+        "filename": "customer_search_template.json",
+        "name": "customers-general"
+      }
+    ]
+}

@@ -22,6 +22,8 @@ services:
       - ./notebooks:/notebooks
       # connector definitions, read by notebooks/Debezium - Base.ipynb
       - ./debezium-connector:/debezium-connector:ro
+      # domain definitions (ES templates, Flyway migrations), read by notebooks/CDC to ES.ipynb
+      - ./flink-cdc-es/domain:/domain:ro
     command: "/opt/conda/bin/jupyter notebook --ip=0.0.0.0 --port=8888 --allow-root --notebook-dir=/notebooks --NotebookApp.token='' --NotebookApp.password='' --NotebookApp.allow_origin='*' --NotebookApp.iopub_data_rate_limit='1.0e10' --no-browser"
     user: root
     networks:
@@ -95,6 +97,8 @@ services:
       - ${KAFKA_CONNECT_PORT:-8083}:8083
     volumes:
       - ./debezium-connector:/usr/share/java/debezium-connector
+      # Elasticsearch sink plugin, downloaded by: scripts/connector.sh install-es-sink
+      - ./debezium-connector/plugins/kafka-connect-elasticsearch:/kafka/connect/kafka-connect-elasticsearch:ro
     depends_on:
       kafka:
         condition: service_healthy
@@ -207,6 +211,29 @@ services:
       timeout: 45s
       interval: 10s
       retries: 10
+
+  # Flyway migrations of a domain (one-shot, not started by `up`): scripts/migrate.sh
+  # https://hub.docker.com/r/flyway/flyway/tags
+  # History in its own schema flyway_inventory: not in public (other app history) nor in inventory
+  # (captured by postgres-connector). Migrations use schema-qualified names (inventory.*)
+  flyway:
+    image: flyway/flyway:13.11.1-alpine
+    profiles: ["migration"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./flink-cdc-es/domain/migration:/flyway/sql:ro
+    networks:
+      - network
+    environment:
+      FLYWAY_URL: jdbc:postgresql://database:5432/${APP_DB_NAME:-db}
+      FLYWAY_USER: ${APP_DB_USER:-admin}
+      FLYWAY_PASSWORD: ${APP_DB_PASSWORD:-admin}
+      FLYWAY_SCHEMAS: flyway_inventory
+      FLYWAY_DEFAULT_SCHEMA: flyway_inventory
+      FLYWAY_LOCATIONS: filesystem:/flyway/sql
+    command: info
 
   # postgres:
   #   image: postgres:${POSTGRESQL_VERSION}
