@@ -1,8 +1,77 @@
-A Flink application project using Java and Gradle.
+# Project - flink-application
 
-Base application `com.github.frtu.vm.sample.DataStreamJob` running WordCount
+A Flink application project using Java and Gradle, for Flink **2.1.0** (same version as the
+`jobmanager` / `taskmanager` images in `../docker-compose.yml`).
 
-To package your job for submission to Flink, use: 'gradle shadowJar'. Afterwards, you'll find the
-jar to use in the 'build/libs' folder.
+## Status
 
-To run and test your application with an embedded instance of Flink use: 'gradle run'
+Last checked: 2026-11-08, built with JDK 17 and run on the local Flink 2.1.0 cluster.
+
+| Item                                          | Status                                                         |
+|-----------------------------------------------|----------------------------------------------------------------|
+| Build (`./gradlew shadowJar`)                 | OK                                                             |
+| `com.github.frtu.vm.sample.DataStreamJob`     | **OK**: main class, word count on built-in sample lines, job `FINISHED` |
+| `jobs.WordCountJob`                           | Compiles; same code as `DataStreamJob`                         |
+| `WordCount` (default package)                 | Compiles; reads a socket on `127.0.0.1:9000`, so it can't run on the cluster as it is |
+| `jobs.CustomerDebeziumJob`                    | Not implemented: all code commented out (Kafka + `debezium-json` table) |
+| `jobs.CustomerAnalyticsJob`                   | Not implemented: all code commented out (`datagen` table)      |
+
+Known gaps:
+
+* The shadow jar is named `build/libs/flink-application-0.0.1-SNAPSHOT-all.jar`, but
+  `scripts/flink.sh submit` looks for `build/libs/flink-application.jar`. Copy it to that
+  name before submitting (see below).
+* `flink.sh submit` runs the jar's `Main-Class` (`DataStreamJob`) and can't pick another class.
+* No Kafka connector dependency yet (`flinkShadowJar "org.apache.flink:flink-connector-kafka..."`
+  is commented out in `build.gradle`), so the CDC jobs can't be enabled as they are.
+
+## Test end to end
+
+Run from the stack directory (`docker/data-pipeline`).
+
+1. Have a JDK 17+ ready (the host has no default Java; SDKMAN provides one):
+
+   ```bash
+   export JAVA_HOME=~/.sdkman/candidates/java/17.0.18-zulu
+   export PATH=$JAVA_HOME/bin:$PATH
+   ```
+
+2. Start the Flink cluster and wait until it's healthy (`flink  OK`):
+
+   ```bash
+   scripts/stack.sh up jobmanager taskmanager
+   scripts/health.sh --wait
+   ```
+
+   `health.sh` also reports the other components. Those can show FAIL if you started only Flink.
+
+3. Build the jar and copy it to the name `flink.sh submit` looks for:
+
+   ```bash
+   scripts/flink.sh build flink-application
+   cp flink-application/build/libs/flink-application-0.0.1-SNAPSHOT-all.jar \
+      flink-application/build/libs/flink-application.jar
+   ```
+
+4. Submit the job (the stack directory is mounted at `/workspace` in the jobmanager):
+
+   ```bash
+   scripts/flink.sh submit flink-application
+   # -> Job has been submitted with JobID <id>
+   ```
+
+5. Check the result:
+
+   ```bash
+   scripts/flink.sh jobs
+   # <id>  FINISHED  Flink 2.0 WordCount with Static Data
+   scripts/stack.sh logs taskmanager 400 | grep -E '\(flink,|\(stream,'
+   # taskmanager-2  | (flink,3)
+   # taskmanager-2  | (stream,3)
+   ```
+
+   The job is also visible in the Flink UI: http://localhost:28081
+
+## Local run
+
+To run with an embedded Flink instance (no cluster): `./gradlew run`.
