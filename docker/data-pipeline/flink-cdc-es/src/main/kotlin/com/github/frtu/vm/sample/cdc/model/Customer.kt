@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import java.io.Serializable
 
 /**
- * Row of table `inventory.customers` (see ../db/init/10-create_inventory.sql),
+ * Row of table `inventory.customers` (see ../model/migration/V1__create_inventory_customers.sql),
  * as serialized by Debezium with `JsonConverter` (schemas disabled).
  *
  * Mutable properties with defaults so that Flink treats it as a POJO (no Kryo fallback).
