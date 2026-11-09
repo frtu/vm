@@ -11,16 +11,16 @@ import java.time.temporal.ChronoUnit
 object CustomerDocuments {
     fun toDocument(customer: Customer, event: CustomerChangeEvent): Map<String, Any?> = linkedMapOf(
         "id" to customer.id,
-        "first_name" to customer.fname,
-        "last_name" to customer.lname,
-        "full_name" to listOfNotNull(customer.fname, customer.lname).joinToString(" ").ifEmpty { null },
+        "first_name" to customer.firstName,
+        "last_name" to customer.lastName,
+        "full_name" to listOfNotNull(customer.firstName, customer.lastName).joinToString(" ").ifEmpty { null },
         "email" to customer.email,
         "street" to customer.street,
         "zip" to customer.zip,
         "city" to customer.city,
         "phone" to customer.phone,
         "status" to customer.status,
-        "registered" to customer.registered?.let { microsToIso(it) },
+        "registered_at" to customer.registeredAt?.let { microsToIso(it) },
         // CDC metadata
         "cdc_op" to event.op,
         "cdc_source_ts" to event.source?.tsMs?.let { Instant.ofEpochMilli(it).toString() },

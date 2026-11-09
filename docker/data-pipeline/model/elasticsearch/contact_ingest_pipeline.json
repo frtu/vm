@@ -1,0 +1,14 @@
+{
+    "description": "Debezium row of inventory.contacts -> contact document: value copied to email or phone by kind, so each kind gets its own lookup rules",
+    "_meta": { "table": "inventory.contacts", "index": "contacts_connect" },
+    "processors": [
+        { "pipeline": { "name": "inventory-cdc-common" } },
+        {
+            "script": {
+                "lang": "painless",
+                "description": "kind EMAIL -> email (lowercase lookup + fragments), kind PHONE -> phone (digits / last 4); value stays the display value. verified_at: MicroTimestamp -> ISO-8601",
+                "source": "if (ctx.kind == 'EMAIL') { ctx.email = ctx.value; } else if (ctx.kind == 'PHONE') { ctx.phone = ctx.value; } if (ctx.verified_at instanceof Number) { ctx.verified_at = Instant.EPOCH.plus(((Number) ctx.verified_at).longValue(), ChronoUnit.MICROS).toString(); }"
+            }
+        }
+    ]
+}

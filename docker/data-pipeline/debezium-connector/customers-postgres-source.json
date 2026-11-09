@@ -8,7 +8,7 @@
     "database.password": "debezium",
     "database.dbname": "ecommerce",
     "topic.prefix": "inventory_db",
-    "table.include.list": "inventory.customers",
+    "table.include.list": "inventory.customers,inventory.contacts,inventory.accounts",
     "plugin.name": "pgoutput",
     "slot.name": "debezium_customers_slot",
     "publication.name": "dbz_customers_publication",

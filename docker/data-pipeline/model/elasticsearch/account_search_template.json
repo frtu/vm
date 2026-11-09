@@ -1,0 +1,100 @@
+{{!
+  accounts-general: find a business account (index accounts_connect).
+    ref          account_ref, full value, case-sensitive, no typo, no partial
+  General query over legal_name, display_name, aliases and notes, named tiers by decreasing weight:
+    name_exact (x10) words in order         name_words (x5) all words, any order, legal suffixes ignored
+    alias (x4) maintained aliases only      name_prefix (x2) all words, prefix from 3 characters
+    notes_words (x1) all meaningful English words, word forms match (refund delay -> Refunds delayed)
+    name_fuzzy (x0.5) only with fuzzy=true, AUTO:3,64 (1 edit from 3 characters); not on aliases or notes
+    notes_subset (x0.1) only with broader=true: some of the words; show these as "broader results"
+  phrase        consecutive words in notes.exact: no stemming, no typo
+  Filters (values resolved by Query Understanding): status, currency (base_currency), country, owner;
+  amount_gte / amount_lte only apply together with amount_currency (credit_currency): an amount is never
+  searched without its currency; opened_gte / opened_lt (+ time_zone, default UTC).
+}}
+{
+    "from": {{from}}{{^from}}0{{/from}},
+    "size": {{size}}{{^size}}10{{/size}},
+
+    {{#result_fields.size}}
+    "_source":  {{#toJson}}result_fields{{/toJson}},
+    {{/result_fields.size}}
+
+    {{#sorts.size}}
+    "sort": {{#toJson}}sorts{{/toJson}},
+    {{/sorts.size}}
+
+    "query": {
+        "bool": {
+            "must": [
+                {{#ref}}
+                { "term": { "account_ref": { "value": "{{ref}}", "_name": "ref_exact" } } },
+                {{/ref}}
+                {{#phrase}}
+                { "match_phrase": { "notes.exact": { "query": "{{phrase}}", "_name": "notes_phrase" } } },
+                {{/phrase}}
+                {{#query}}
+                {
+                    "bool": {
+                        "minimum_should_match": 1,
+                        "should": [
+                            {{#fuzzy}}
+                            { "multi_match": { "_name": "name_fuzzy", "query": "{{query}}", "operator": "and",
+                                "fields": ["legal_name.text", "display_name.text"],
+                                "fuzziness": "{{fuzziness}}{{^fuzziness}}AUTO:3,64{{/fuzziness}}", "max_expansions": 50, "boost": 0.5 } },
+                            {{/fuzzy}}
+                            {{#broader}}
+                            { "match": { "notes": { "_name": "notes_subset", "query": "{{query}}", "minimum_should_match": "1", "boost": 0.1 } } },
+                            {{/broader}}
+                            { "multi_match": { "_name": "name_exact", "query": "{{query}}", "type": "phrase",
+                                "fields": ["legal_name.text", "display_name.text"], "boost": 10 } },
+                            { "multi_match": { "_name": "name_words", "query": "{{query}}", "operator": "and",
+                                "fields": ["legal_name.text", "display_name.text"], "boost": 5 } },
+                            { "match": { "aliases": { "_name": "alias", "query": "{{query}}", "operator": "and", "boost": 4 } } },
+                            { "multi_match": { "_name": "name_prefix", "query": "{{query}}", "operator": "and",
+                                "fields": ["legal_name.prefix", "display_name.prefix"], "boost": 2 } },
+                            { "match": { "notes": { "_name": "notes_words", "query": "{{query}}", "operator": "and", "boost": 1 } } }
+                        ]
+                    }
+                },
+                {{/query}}
+                { "match_all": {} }
+            ],
+            "filter": [
+                {{#status}}
+                { "term": { "status": "{{status}}" } },
+                {{/status}}
+                {{#currency}}
+                { "term": { "base_currency": "{{currency}}" } },
+                {{/currency}}
+                {{#country}}
+                { "term": { "country_code": "{{country}}" } },
+                {{/country}}
+                {{#owner_customer_id}}
+                { "term": { "owner_customer_id": {{owner_customer_id}} } },
+                {{/owner_customer_id}}
+                {{#amount_currency}}
+                { "term": { "credit_currency": "{{amount_currency}}" } },
+                {{#amount_gte}}
+                { "range": { "credit_limit": { "gte": {{amount_gte}} } } },
+                {{/amount_gte}}
+                {{#amount_lte}}
+                { "range": { "credit_limit": { "lte": {{amount_lte}} } } },
+                {{/amount_lte}}
+                {{/amount_currency}}
+                {{#opened_gte}}
+                { "range": { "opened_at": { "gte": "{{opened_gte}}", "time_zone": "{{time_zone}}{{^time_zone}}UTC{{/time_zone}}" } } },
+                {{/opened_gte}}
+                {{#opened_lt}}
+                { "range": { "opened_at": { "lt": "{{opened_lt}}", "time_zone": "{{time_zone}}{{^time_zone}}UTC{{/time_zone}}" } } },
+                {{/opened_lt}}
+                { "match_all": {} }
+            ]
+        }
+    },
+    "aggs": {
+        "status": { "terms": { "field": "status", "size": 10 } },
+        "currency": { "terms": { "field": "base_currency", "size": 50 } },
+        "country": { "terms": { "field": "country_code", "size": 50 } }
+    }
+}

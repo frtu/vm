@@ -28,7 +28,7 @@ Elasticsearch document (index `customers`):
   "id": 1001, "first_name": "Brandon", "last_name": "Thomas", "full_name": "Brandon Thomas",
   "email": "brandon.thomas@example.com", "street": "29 Oakwood Drive", "zip": "90210",
   "city": "Los Angeles", "phone": "(800) 555‑2100", "status": 1,
-  "registered": "2023-02-17T21:36:42Z",
+  "registered_at": "2023-02-17T21:36:42Z",
   "cdc_op": "r", "cdc_source_ts": "2026-11-08T15:57:12.211Z", "cdc_processed_ts": "2026-11-08T15:57:12.301Z"
 }
 ```
@@ -96,7 +96,7 @@ Run from the stack directory (`docker/data-pipeline`). It needs JDK 17+ (on this
 
    ```bash
    scripts/es.sh count customers                  # 2
-   scripts/db.sh query "INSERT INTO inventory.customers (fname,lname,email,city,status,registered) VALUES ('Flink','Test','flink.test@example.com','Singapore',1,now())"
+   scripts/db.sh query "INSERT INTO inventory.customers (first_name,last_name,email,city,status,registered_at) VALUES ('Flink','Test','flink.test@example.com','Singapore',1,now())"
    scripts/es.sh search customers 'email:"flink.test@example.com"' 1   # cdc_op: c
    scripts/db.sh query "UPDATE inventory.customers SET city='Paris' WHERE email='flink.test@example.com'"
    scripts/es.sh search customers 'email:"flink.test@example.com"' 1   # city: Paris, cdc_op: u

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Run the Flyway migrations of the domain (flink-cdc-es/domain/migration) against the
+# Run the Flyway migrations of the domain (model/migration) against the
 # source database, with the one-shot `flyway` service of docker-compose.yml.
 #
 # Usage: scripts/migrate.sh <command> [args]
@@ -9,6 +9,7 @@
 #   migrate [version]    Apply pending migrations, only up to [version] when given
 #                        (e.g. `migrate 1` creates the table, `migrate` then inserts the data)
 #   validate             Check applied migrations match the files
+#   repair               Realign the history checksums with the files (after a comment-only edit)
 #
 # History table: flyway_inventory.flyway_schema_history (not public, not inventory).
 source "$(dirname "$0")/_lib.sh"
@@ -18,6 +19,7 @@ flyway() { dc run --rm --no-deps flyway "$@"; }
 
 cmd_info()     { flyway info; }
 cmd_validate() { flyway validate; }
+cmd_repair()   { flyway repair; }
 
 cmd_migrate() {
   if [ -n "${1:-}" ]; then

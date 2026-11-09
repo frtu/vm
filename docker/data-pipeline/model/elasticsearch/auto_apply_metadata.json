@@ -1,8 +1,26 @@
 {
+    "component_templates": [
+        {
+          "filename": "common_component_template.json",
+          "name": "inventory-text-analysis"
+        }
+    ],
     "ingest_pipelines": [
         {
           "filename": "customer_ingest_pipeline.json",
           "name": "customers-cdc"
+        },
+        {
+          "filename": "contact_ingest_pipeline.json",
+          "name": "contacts-cdc"
+        },
+        {
+          "filename": "account_ingest_pipeline.json",
+          "name": "accounts-cdc"
+        },
+        {
+          "filename": "common_ingest_pipeline.json",
+          "name": "inventory-cdc-common"
         }
     ],
     "index_templates": [
@@ -10,13 +28,42 @@
           "filename": "customer_index_template.json",
           "name": "inventory-customers",
           "index_patterns": ["customers_connect*"],
-          "index": "customers_connect"
-       }
+          "composed_of": ["inventory-text-analysis"],
+          "index": "customers_connect",
+          "table": "inventory.customers"
+        },
+        {
+          "filename": "contact_index_template.json",
+          "name": "inventory-contacts",
+          "index_patterns": ["contacts_connect*"],
+          "composed_of": ["inventory-text-analysis"],
+          "index": "contacts_connect",
+          "table": "inventory.contacts"
+        },
+        {
+          "filename": "account_index_template.json",
+          "name": "inventory-accounts",
+          "index_patterns": ["accounts_connect*"],
+          "composed_of": ["inventory-text-analysis"],
+          "index": "accounts_connect",
+          "table": "inventory.accounts"
+        }
     ],
     "search_templates": [
       {
         "filename": "customer_search_template.json",
-        "name": "customers-general"
+        "name": "customers-general",
+        "index": "customers_connect"
+      },
+      {
+        "filename": "contact_search_template.json",
+        "name": "contacts-lookup",
+        "index": "contacts_connect"
+      },
+      {
+        "filename": "account_search_template.json",
+        "name": "accounts-general",
+        "index": "accounts_connect"
       }
     ]
 }

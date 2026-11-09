@@ -1,0 +1,121 @@
+{
+    "entity": "customer",
+    "table": "inventory.customers",
+    "index": "customers_connect",
+    "search_template": "customers-general",
+    "locales": ["en"],
+    "description": "Search contract of each customer field: category (meaning of the value, not its SQL type), behaviors it opts in to, where it lives in ES, the search template parameter and the spec line shown to product and QA. Behaviors: blur (case, accents, separators, word order), stemming (word forms), fuzzy (typos), fixed_list (resolved to a listed value before the search). Nothing is enabled globally.",
+    "fields": [
+        {
+            "field": "id", "column": "id", "category": "identifier", "behaviors": [],
+            "es": { "lookup": "id (long, = _id)" }, "param": null,
+            "spec": "Internal key, not exposed to search users. Returns 0 or 1 record."
+        },
+        {
+            "field": "customer_ref", "column": "customer_ref", "category": "identifier", "behaviors": [],
+            "es": { "lookup": "customer_ref" }, "param": "ref",
+            "examples": { "cus_tko2304": "1 customer", "cus_tko2305": "nothing (near twin is never a hit)", "CUS_TKO2304": "nothing", "cus_tko": "nothing" },
+            "spec": "Users find a customer by the full customer_ref, with no normalization. No typo correction. Partial lookup is disabled."
+        },
+        {
+            "field": "full_name", "column": "first_name + last_name", "category": "person name", "behaviors": ["blur", "fuzzy"],
+            "es": { "exact": "full_name.text (phrase)", "words": "full_name.text", "prefix": "full_name.prefix", "fuzzy": "full_name.text", "display": "full_name" },
+            "param": "query (+ fuzzy, fuzziness)",
+            "prefix_min_length": 3,
+            "typo_policy": "AUTO:3,64: no edit under 3 characters, at most 1 edit from 3 characters. ES AUTO allows 2 edits from 6 characters (Kovalsky would find Kowalski).",
+            "examples": {
+                "claire dubois": "Marie-Claire Dubois (name_words)", "marieclaire": "nothing (parts are never joined)",
+                "zoe muller": "Zoë Müller", "mueller": "nothing by name (ü is folded to u, not transliterated to ue)",
+                "arcy": "Siobhán D'Arcy", "darcy": "nothing by name, found by the email fragment siobhan.darcy",
+                "alex petr": "Alexandra Petrova (name_prefix)", "al": "nothing (prefix under 3)", "Sasha": "nothing (no nickname)",
+                "Kowalsky (fuzzy)": "Tomasz Kowalski (name_fuzzy)", "Kovalsky (fuzzy)": "nothing (2 edits)", "lu (fuzzy)": "not Wei Li (2 characters, no edit)"
+            },
+            "spec": "full_name supports en, case and accent folding, hyphen and apostrophe parts, whole words in any order, prefixes from 3 characters and, when fuzzy is on, 1 typo from 3 characters. No nicknames. Exact phrase ranks above words, prefixes and typos."
+        },
+        {
+            "field": "first_name", "column": "first_name", "category": "person name", "behaviors": ["blur"],
+            "es": { "words": "first_name.text", "prefix": "first_name.prefix" }, "param": null,
+            "spec": "Searched through full_name; kept for display and sort (first_name.keyword)."
+        },
+        {
+            "field": "last_name", "column": "last_name", "category": "person name", "behaviors": ["blur"],
+            "es": { "words": "last_name.text", "prefix": "last_name.prefix" }, "param": null,
+            "spec": "Searched through full_name; kept for display and sort (last_name.keyword)."
+        },
+        {
+            "field": "email", "column": "email", "category": "contact", "behaviors": ["blur"],
+            "es": { "lookup": "email (lowercase_normalizer)", "fragments": "email.text" },
+            "param": "email (lookup), query (fragments)",
+            "examples": { "OLA.NORDMANN@example.no": "Ola Nordmann (email_exact)", "ola.nordmann": "Ola Nordmann (email_fragment)", "olanordmann": "nothing", "kai_lee@mailbox.example": "nothing (+tag kept)" },
+            "spec": "email supports exact lookup after lowercasing and discovery by whole fragments split on . _ + @ -. No typo matching; dots and +tags are never removed."
+        },
+        {
+            "field": "phone", "column": "phone", "category": "contact", "behaviors": [],
+            "es": { "lookup": "phone.normalized", "last4": "phone.last4", "display": "phone" },
+            "param": "phone, phone_last4",
+            "spec": "phone supports exact lookup on digits only and discovery by the last 4 digits. The country code is part of the value. No typo matching."
+        },
+        {
+            "field": "street", "column": "street", "category": "address line", "behaviors": ["blur"],
+            "es": { "words": "street.text" }, "param": null,
+            "spec": "Indexed with the name analyzers; not part of the general query."
+        },
+        {
+            "field": "zip", "column": "zip", "category": "identifier", "behaviors": [],
+            "es": { "lookup": "zip" }, "param": null,
+            "spec": "Postal code, exact value only."
+        },
+        {
+            "field": "city", "column": "city", "category": "label", "behaviors": [],
+            "es": { "filter": "city", "words": "city.text" }, "param": "city",
+            "spec": "city filters on the exact stored value and is a facet."
+        },
+        {
+            "field": "country_code", "column": "country_code", "category": "fixed list", "behaviors": ["fixed_list"],
+            "es": { "filter": "country_code" }, "param": "country",
+            "values": [
+                { "code": "AU", "labels": ["australia"], "wording": [] },
+                { "code": "BG", "labels": ["bulgaria"], "wording": [] },
+                { "code": "CN", "labels": ["china"], "wording": [] },
+                { "code": "DE", "labels": ["germany"], "wording": ["deutschland"] },
+                { "code": "FR", "labels": ["france"], "wording": [] },
+                { "code": "IE", "labels": ["ireland"], "wording": ["eire"] },
+                { "code": "IT", "labels": ["italy"], "wording": [] },
+                { "code": "NG", "labels": ["nigeria"], "wording": [] },
+                { "code": "NO", "labels": ["norway"], "wording": ["norge"] },
+                { "code": "PL", "labels": ["poland"], "wording": [] },
+                { "code": "SE", "labels": ["sweden"], "wording": ["sverige"] },
+                { "code": "US", "labels": ["united states"], "wording": ["usa", "america"] }
+            ],
+            "ambiguous": { "scandinavia": ["NO", "SE"] },
+            "spec": "country_code supports ISO codes (any case), English names and curated wording (norge -> NO). scandinavia needs a selection."
+        },
+        {
+            "field": "status", "column": "status", "category": "fixed list", "behaviors": ["fixed_list"],
+            "es": { "filter": "status (label)", "raw": "status_code" }, "param": "status",
+            "codes": { "0": "PENDING", "1": "ACTIVE", "2": "SUSPENDED", "3": "CLOSED" },
+            "values": [
+                { "code": "PENDING", "labels": ["pending"], "wording": ["awaiting approval"] },
+                { "code": "ACTIVE", "labels": ["active"], "wording": ["live", "enabled"] },
+                { "code": "SUSPENDED", "labels": ["suspended"], "wording": ["frozen", "blocked"] },
+                { "code": "CLOSED", "labels": ["closed"], "wording": ["terminated"] }
+            ],
+            "ambiguous": { "inactive": ["SUSPENDED", "CLOSED"], "dormant": ["SUSPENDED", "CLOSED"] },
+            "spec": "status supports labels and curated wording (frozen -> SUSPENDED). Ambiguous wording (dormant) and spellings (suspnded) need a user selection; the applied value is an editable filter. An unknown code is indexed as UNKNOWN."
+        },
+        {
+            "field": "registered_at", "column": "registered_at", "category": "date", "behaviors": [],
+            "es": { "filter": "registered_at" }, "param": "registered_at_gte / registered_at_lt (+ time_zone)",
+            "examples": { "2025-05-07 (UTC)": "Chidi Okafor (23:30 UTC)", "2025-05-08 (Asia/Tokyo)": "Chidi Okafor (08:30 the next day in Tokyo)", "05/07/2025": "clarify: 7 May or 5 July" },
+            "spec": "registered_at supports ISO dates and [gte, lt) ranges in an explicit time zone (UTC by default). An ambiguous date requires clarification."
+        },
+        {
+            "field": "status_code", "column": "status", "category": "fixed list", "behaviors": [],
+            "es": { "raw": "status_code" }, "param": null,
+            "spec": "Raw integer of status, not searched."
+        },
+        { "field": "cdc_op", "column": "Debezium op", "category": "technical", "behaviors": [], "es": {}, "param": null, "spec": "c / u / r of the last change." },
+        { "field": "cdc_source_ts", "column": "Debezium source.ts_ms", "category": "technical", "behaviors": [], "es": {}, "param": null, "spec": "Commit time in Postgres." },
+        { "field": "cdc_processed_ts", "column": "Debezium ts_ms", "category": "technical", "behaviors": [], "es": {}, "param": null, "spec": "Time Debezium processed the change." }
+    ]
+}

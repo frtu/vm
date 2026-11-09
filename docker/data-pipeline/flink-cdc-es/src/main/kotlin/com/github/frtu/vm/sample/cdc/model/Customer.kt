@@ -1,6 +1,7 @@
 package com.github.frtu.vm.sample.cdc.model
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import com.fasterxml.jackson.annotation.JsonProperty
 import java.io.Serializable
 
 /**
@@ -12,8 +13,8 @@ import java.io.Serializable
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Customer(
     var id: Int = 0,
-    var fname: String? = null,
-    var lname: String? = null,
+    @JsonProperty("first_name") var firstName: String? = null,
+    @JsonProperty("last_name") var lastName: String? = null,
     var email: String? = null,
     var street: String? = null,
     var zip: String? = null,
@@ -21,7 +22,7 @@ data class Customer(
     var phone: String? = null,
     var status: Int? = null,
     /** Postgres `TIMESTAMP` : Debezium `MicroTimestamp`, microseconds since epoch (UTC) */
-    var registered: Long? = null,
+    @JsonProperty("registered_at") var registeredAt: Long? = null,
 ) : Serializable {
     companion object {
         @JvmStatic

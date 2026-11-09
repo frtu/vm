@@ -8,21 +8,79 @@
     },
     "mappings": {
         "dynamic": false,
+        "_meta": {
+            "entity": "customer",
+            "table": "inventory.customers",
+            "catalog": "catalog/customer_field_catalog.json",
+            "analysis": "component template inventory-text-analysis",
+            "subfields": ".keyword exact value / sort / facet, .text name analyzers (search), .prefix edge n-grams from 3 characters"
+        },
         "properties": {
-            "id": { "type": "long" },
-            "first_name": { "type": "text", "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } } },
-            "last_name": { "type": "text", "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } } },
-            "full_name": { "type": "text", "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } } },
-            "email": { "type": "text", "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } } },
-            "street": { "type": "text", "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } } },
-            "zip": { "type": "text", "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } } },
-            "city": { "type": "text", "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } } },
-            "phone": { "type": "text", "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } } },
-            "status": { "type": "long" },
-            "registered": { "type": "date" },
-            "cdc_op": { "type": "text", "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } } },
-            "cdc_source_ts": { "type": "date" },
-            "cdc_processed_ts": { "type": "date" }
+            "id": { "type": "long", "meta": { "category": "identifier", "search": "internal key = _id, not searched" } },
+            "customer_ref": { "type": "keyword", "meta": { "category": "identifier", "search": "term, full value, case-sensitive" } },
+            "first_name": {
+                "type": "text",
+                "meta": { "category": "person name", "search": "via full_name" },
+                "fields": {
+                    "keyword": { "type": "keyword", "ignore_above": 256 },
+                    "text": { "type": "text", "analyzer": "name_index_analyzer", "search_analyzer": "name_search_analyzer" },
+                    "prefix": { "type": "text", "analyzer": "name_prefix_index_analyzer", "search_analyzer": "name_search_analyzer" }
+                }
+            },
+            "last_name": {
+                "type": "text",
+                "meta": { "category": "person name", "search": "via full_name" },
+                "fields": {
+                    "keyword": { "type": "keyword", "ignore_above": 256 },
+                    "text": { "type": "text", "analyzer": "name_index_analyzer", "search_analyzer": "name_search_analyzer" },
+                    "prefix": { "type": "text", "analyzer": "name_prefix_index_analyzer", "search_analyzer": "name_search_analyzer" }
+                }
+            },
+            "full_name": {
+                "type": "text",
+                "meta": { "category": "person name", "search": "phrase > all words > prefix > typo (opt-in)" },
+                "fields": {
+                    "keyword": { "type": "keyword", "ignore_above": 256 },
+                    "text": { "type": "text", "analyzer": "name_index_analyzer", "search_analyzer": "name_search_analyzer" },
+                    "prefix": { "type": "text", "analyzer": "name_prefix_index_analyzer", "search_analyzer": "name_search_analyzer" }
+                }
+            },
+            "email": {
+                "type": "keyword",
+                "normalizer": "lowercase_normalizer",
+                "meta": { "category": "contact", "search": "term lowercased; .text whole fragments" },
+                "fields": { "text": { "type": "text", "analyzer": "email_text_analyzer" } }
+            },
+            "phone": {
+                "type": "keyword",
+                "ignore_above": 64,
+                "meta": { "category": "contact", "search": "term on digits only or last 4 digits" },
+                "fields": {
+                    "normalized": { "type": "keyword", "normalizer": "phone_normalizer" },
+                    "last4": { "type": "keyword", "normalizer": "phone_last4_normalizer" }
+                }
+            },
+            "street": {
+                "type": "text",
+                "meta": { "category": "address line", "search": "name rules, not in the general query" },
+                "fields": {
+                    "keyword": { "type": "keyword", "ignore_above": 256 },
+                    "text": { "type": "text", "analyzer": "name_index_analyzer", "search_analyzer": "name_search_analyzer" }
+                }
+            },
+            "zip": { "type": "keyword", "meta": { "category": "identifier", "search": "term" } },
+            "city": {
+                "type": "keyword",
+                "meta": { "category": "label", "search": "term filter, facet" },
+                "fields": { "text": { "type": "text", "analyzer": "name_index_analyzer", "search_analyzer": "name_search_analyzer" } }
+            },
+            "country_code": { "type": "keyword", "meta": { "category": "fixed list", "search": "term on the resolved ISO code" } },
+            "status": { "type": "keyword", "meta": { "category": "fixed list", "search": "term on the resolved label" } },
+            "status_code": { "type": "integer", "meta": { "category": "fixed list", "search": "raw code, not searched" } },
+            "registered_at": { "type": "date", "meta": { "category": "date", "search": "range [gte, lt) with time_zone" } },
+            "cdc_op": { "type": "keyword", "meta": { "category": "technical" } },
+            "cdc_source_ts": { "type": "date", "meta": { "category": "technical" } },
+            "cdc_processed_ts": { "type": "date", "meta": { "category": "technical" } }
         }
     }
 }

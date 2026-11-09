@@ -1,3 +1,19 @@
+{{!
+  customers-general: find a customer (index customers_connect).
+  Exact lookups (each one a must clause, no typo, no partial):
+    ref          customer_ref, full value, case-sensitive
+    email        whole address, lowercased by the field normalizer
+    phone        digits only (+61 2 9374 4000 = +61 (2) 9374-4000), country code included
+    phone_last4  last 4 digits: discovery, every matching customer is returned
+  General query, tiers by decreasing weight; every clause is named, so a hit's matched_queries says
+  why it was found (never present an alias, a prefix or a fragment as a spelling correction):
+    name_exact (x10) words in order    name_words (x5) all words, any order
+    email_fragment (x3) whole parts    name_prefix (x2) all words, prefix from 3 characters
+    name_fuzzy (x0.5) only with fuzzy=true; fuzziness AUTO:3,64 = no edit under 3 characters, 1 edit
+                      from 3 (ES AUTO would allow 2 from 6: Kovalsky -> Kowalski); override with fuzziness
+  Filters take values already resolved by Query Understanding (catalog), never fuzzy:
+    city, status (label), country (ISO code), registered_at_gte / registered_at_lt (+ time_zone, default UTC)
+}}
 {
     "from": {{from}}{{^from}}0{{/from}},
     "size": {{size}}{{^size}}10{{/size}},
@@ -13,32 +29,60 @@
     "query": {
         "bool": {
             "must": [
+                {{#ref}}
+                { "term": { "customer_ref": { "value": "{{ref}}", "_name": "ref_exact" } } },
+                {{/ref}}
+                {{#email}}
+                { "term": { "email": { "value": "{{email}}", "_name": "email_exact" } } },
+                {{/email}}
+                {{#phone}}
+                { "term": { "phone.normalized": { "value": "{{phone}}", "_name": "phone_exact" } } },
+                {{/phone}}
+                {{#phone_last4}}
+                { "term": { "phone.last4": { "value": "{{phone_last4}}", "_name": "phone_last4" } } },
+                {{/phone_last4}}
                 {{#query}}
-                { "multi_match": { "query": "{{query}}", "fields": ["full_name", "first_name", "last_name", "email"] } }
+                {
+                    "bool": {
+                        "minimum_should_match": 1,
+                        "should": [
+                            {{#fuzzy}}
+                            { "match": { "full_name.text": { "_name": "name_fuzzy", "query": "{{query}}", "operator": "and",
+                                "fuzziness": "{{fuzziness}}{{^fuzziness}}AUTO:3,64{{/fuzziness}}", "max_expansions": 50, "boost": 0.5 } } },
+                            {{/fuzzy}}
+                            { "match_phrase": { "full_name.text": { "_name": "name_exact", "query": "{{query}}", "boost": 10 } } },
+                            { "match": { "full_name.text": { "_name": "name_words", "query": "{{query}}", "operator": "and", "boost": 5 } } },
+                            { "match": { "email.text": { "_name": "email_fragment", "query": "{{query}}", "operator": "and", "boost": 3 } } },
+                            { "match": { "full_name.prefix": { "_name": "name_prefix", "query": "{{query}}", "operator": "and", "boost": 2 } } }
+                        ]
+                    }
+                },
                 {{/query}}
-                {{^query}}
                 { "match_all": {} }
-                {{/query}}
             ],
             "filter": [
                 {{#city}}
-                { "term": { "city.keyword": "{{city}}" } }
+                { "term": { "city": "{{city}}" } },
                 {{/city}}
+                {{#status}}
+                { "term": { "status": "{{status}}" } },
+                {{/status}}
+                {{#country}}
+                { "term": { "country_code": "{{country}}" } },
+                {{/country}}
+                {{#registered_at_gte}}
+                { "range": { "registered_at": { "gte": "{{registered_at_gte}}", "time_zone": "{{time_zone}}{{^time_zone}}UTC{{/time_zone}}" } } },
+                {{/registered_at_gte}}
+                {{#registered_at_lt}}
+                { "range": { "registered_at": { "lt": "{{registered_at_lt}}", "time_zone": "{{time_zone}}{{^time_zone}}UTC{{/time_zone}}" } } },
+                {{/registered_at_lt}}
+                { "match_all": {} }
             ]
         }
     },
     "aggs": {
-      "city": {
-        "terms": {
-          "field": "city.keyword",
-          "size": 100
-        }
-      },
-      "status": {
-        "terms": {
-          "field": "status",
-          "size": 10
-        }
-      }
+        "city": { "terms": { "field": "city", "size": 100 } },
+        "status": { "terms": { "field": "status", "size": 10 } },
+        "country": { "terms": { "field": "country_code", "size": 50 } }
     }
 }

@@ -1,0 +1,65 @@
+{
+    "settings": {
+        "index": {
+            "number_of_shards": 1,
+            "number_of_replicas": 0,
+            "default_pipeline": "accounts-cdc"
+        }
+    },
+    "mappings": {
+        "dynamic": false,
+        "_meta": {
+            "entity": "account",
+            "table": "inventory.accounts",
+            "catalog": "catalog/account_field_catalog.json",
+            "analysis": "component template inventory-text-analysis",
+            "subfields": ".keyword exact value, .text company analyzers (legal suffixes removed), .prefix edge n-grams from 3 characters, notes.exact standard analyzer for strict phrases"
+        },
+        "properties": {
+            "id": { "type": "long", "meta": { "category": "identifier", "search": "internal key = _id" } },
+            "account_ref": { "type": "keyword", "meta": { "category": "identifier", "search": "term, full value, case-sensitive" } },
+            "owner_customer_id": { "type": "long", "meta": { "category": "identifier", "search": "term, customer that owns it" } },
+            "legal_name": {
+                "type": "text",
+                "meta": { "category": "company name", "search": "phrase > all words > prefix > typo (opt-in)" },
+                "fields": {
+                    "keyword": { "type": "keyword", "ignore_above": 256 },
+                    "text": { "type": "text", "analyzer": "company_index_analyzer", "search_analyzer": "company_search_analyzer" },
+                    "prefix": { "type": "text", "analyzer": "company_prefix_index_analyzer", "search_analyzer": "company_search_analyzer" }
+                }
+            },
+            "display_name": {
+                "type": "text",
+                "meta": { "category": "company name", "search": "same tiers as legal_name" },
+                "fields": {
+                    "keyword": { "type": "keyword", "ignore_above": 256 },
+                    "text": { "type": "text", "analyzer": "company_index_analyzer", "search_analyzer": "company_search_analyzer" },
+                    "prefix": { "type": "text", "analyzer": "company_prefix_index_analyzer", "search_analyzer": "company_search_analyzer" }
+                }
+            },
+            "aliases": {
+                "type": "text",
+                "analyzer": "name_index_analyzer",
+                "search_analyzer": "name_search_analyzer",
+                "meta": { "category": "alias", "search": "all words, never typo-corrected" },
+                "fields": { "keyword": { "type": "keyword", "ignore_above": 256 } }
+            },
+            "country_code": { "type": "keyword", "meta": { "category": "fixed list", "search": "term on the resolved ISO code" } },
+            "base_currency": { "type": "keyword", "meta": { "category": "fixed list", "search": "term on the resolved ISO code" } },
+            "credit_currency": { "type": "keyword", "meta": { "category": "fixed list", "search": "required with an amount" } },
+            "credit_limit": { "type": "scaled_float", "scaling_factor": 1000, "meta": { "category": "amount", "search": "range, only with amount_currency" } },
+            "payment_terms_days": { "type": "integer", "meta": { "category": "amount", "search": "range" } },
+            "status": { "type": "keyword", "meta": { "category": "fixed list", "search": "term on the resolved code" } },
+            "notes": {
+                "type": "text",
+                "analyzer": "english_analyzer",
+                "meta": { "category": "free text", "search": "all words, word forms; .exact phrase" },
+                "fields": { "exact": { "type": "text", "analyzer": "standard" } }
+            },
+            "opened_at": { "type": "date", "meta": { "category": "date", "search": "range [gte, lt) with time_zone" } },
+            "cdc_op": { "type": "keyword", "meta": { "category": "technical" } },
+            "cdc_source_ts": { "type": "date", "meta": { "category": "technical" } },
+            "cdc_processed_ts": { "type": "date", "meta": { "category": "technical" } }
+        }
+    }
+}

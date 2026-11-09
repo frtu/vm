@@ -1,0 +1,124 @@
+{
+    "entity": "account",
+    "table": "inventory.accounts",
+    "index": "accounts_connect",
+    "search_template": "accounts-general",
+    "locales": ["en"],
+    "description": "Search contract of each account field: category, behaviors, ES path, search template parameter and spec line.",
+    "fields": [
+        { "field": "id", "column": "id", "category": "identifier", "behaviors": [], "es": { "lookup": "id (= _id)" }, "param": null, "spec": "Internal key." },
+        {
+            "field": "account_ref", "column": "account_ref", "category": "identifier", "behaviors": [],
+            "es": { "lookup": "account_ref" }, "param": "ref",
+            "examples": { "acct_7Q2M9K": "Northwind Traders Ltd only", "acct_7Q2M9Z": "nothing", "acct_7q2m9k": "nothing", "acct_7Q2M": "nothing" },
+            "spec": "Users find an account by the full account_ref, case-sensitive. acct_7Q2M9X (one character away) is never shown as a hit for acct_7Q2M9K. Partial lookup is disabled."
+        },
+        { "field": "owner_customer_id", "column": "owner_customer_id", "category": "identifier", "behaviors": [], "es": { "filter": "owner_customer_id" }, "param": "owner_customer_id", "spec": "All accounts of one customer." },
+        {
+            "field": "legal_name", "column": "legal_name", "category": "company name", "behaviors": ["blur", "fuzzy"],
+            "es": { "exact": "legal_name.text (phrase)", "words": "legal_name.text", "prefix": "legal_name.prefix", "fuzzy": "legal_name.text" },
+            "param": "query (+ fuzzy, fuzziness)",
+            "legal_suffixes": ["ltd", "limited", "inc", "incorporated", "llc", "llp", "plc", "co", "corp", "gmbh", "ag", "sarl", "s.a.", "s.r.l.", "pty", "as", "ab"],
+            "examples": { "GMBH KESTREL": "Kestrel Labs GmbH (ltd / gmbh ignored)", "ltd": "nothing", "dante": "Dante's Pizzeria S.r.l.", "dantes": "nothing", "merid pac": "Meridian Pacific Shipping Ltd (prefix)", "Meridain (fuzzy)": "Meridian (transposition = 1 edit)", "Northwxxx (fuzzy)": "nothing" },
+            "spec": "legal_name supports en, case and accent folding, hyphen / apostrophe parts and possessives, whole words in any order, prefixes from 3 characters and, when fuzzy is on, 1 typo from 3 characters. Legal suffixes of the declared list carry no weight; a suffix alone matches nothing."
+        },
+        {
+            "field": "display_name", "column": "display_name", "category": "company name", "behaviors": ["blur", "fuzzy"],
+            "es": { "exact": "display_name.text (phrase)", "words": "display_name.text", "prefix": "display_name.prefix", "fuzzy": "display_name.text" },
+            "param": "query", "spec": "Same rules as legal_name."
+        },
+        {
+            "field": "aliases", "column": "aliases", "category": "alias", "behaviors": ["blur"],
+            "es": { "words": "aliases" }, "param": "query",
+            "alias_owner": "Account owner (column inventory.accounts.aliases)",
+            "examples": { "NWT": "Northwind Traders Ltd (alias)", "MPS": "Meridian Pacific Shipping Ltd (alias)", "NWX (fuzzy)": "nothing (no typo on aliases)" },
+            "spec": "An alias finds the account only because it is maintained in aliases. Never typo-corrected. A hit by alias is labeled alias, never as a spelling correction."
+        },
+        {
+            "field": "country_code", "column": "country_code", "category": "fixed list", "behaviors": ["fixed_list"],
+            "es": { "filter": "country_code" }, "param": "country",
+            "values": [
+                { "code": "AU", "labels": ["australia"], "wording": [] },
+                { "code": "CN", "labels": ["china"], "wording": [] },
+                { "code": "DE", "labels": ["germany"], "wording": [] },
+                { "code": "FR", "labels": ["france"], "wording": [] },
+                { "code": "GB", "labels": ["united kingdom"], "wording": ["uk", "britain"] },
+                { "code": "IT", "labels": ["italy"], "wording": [] },
+                { "code": "NG", "labels": ["nigeria"], "wording": [] },
+                { "code": "NO", "labels": ["norway"], "wording": [] },
+                { "code": "SE", "labels": ["sweden"], "wording": [] },
+                { "code": "SG", "labels": ["singapore"], "wording": [] },
+                { "code": "US", "labels": ["united states"], "wording": ["usa"] }
+            ],
+            "spec": "ISO 3166-1 alpha-2 code, filter only."
+        },
+        {
+            "field": "base_currency", "column": "base_currency", "category": "fixed list", "behaviors": ["fixed_list"],
+            "es": { "filter": "base_currency" }, "param": "currency",
+            "values": [
+                { "code": "AUD", "labels": ["australian dollar"], "wording": ["aussie dollar"] },
+                { "code": "CNY", "labels": ["chinese yuan"], "wording": ["renminbi", "rmb", "yuan"] },
+                { "code": "DKK", "labels": ["danish krone"], "wording": [] },
+                { "code": "EUR", "labels": ["euro"], "wording": ["euros"] },
+                { "code": "GBP", "labels": ["pound sterling"], "wording": ["sterling"] },
+                { "code": "JPY", "labels": ["japanese yen"], "wording": ["yen"] },
+                { "code": "NOK", "labels": ["norwegian krone"], "wording": [] },
+                { "code": "SEK", "labels": ["swedish krona"], "wording": ["krona", "kronor"] },
+                { "code": "SGD", "labels": ["singapore dollar"], "wording": [] },
+                { "code": "USD", "labels": ["us dollar"], "wording": [] }
+            ],
+            "ambiguous": { "krone": ["DKK", "NOK"], "kroner": ["DKK", "NOK"], "dollar": ["AUD", "SGD", "USD"] },
+            "spec": "base_currency supports ISO codes (any case), English names and curated wording (yen -> JPY). krone is ambiguous (DKK or NOK) and needs a selection. bitcoin is not a listed value: reported as invalid, never mapped to the nearest code."
+        },
+        {
+            "field": "credit_currency", "column": "credit_currency (null = base_currency)", "category": "fixed list", "behaviors": ["fixed_list"],
+            "es": { "filter": "credit_currency" }, "param": "amount_currency",
+            "values_from": "base_currency",
+            "spec": "Currency of credit_limit, filled with base_currency by the ingest pipeline when null. Lindqvist Design AB trades in SEK with a credit limit in EUR."
+        },
+        {
+            "field": "credit_limit", "column": "credit_limit_minor", "category": "amount", "behaviors": [],
+            "es": { "filter": "credit_limit (scaled_float, major units)" }, "param": "amount_currency + amount_gte / amount_lte",
+            "currency_field": "credit_currency",
+            "minor_unit_exponents": { "JPY": 0, "KRW": 0, "BHD": 3, "KWD": 3, "default": 2 },
+            "examples": { "2,500.00 EUR": "Kestrel Labs GmbH only (not Meridian 2,500.00 SGD, not Willow 250.00 EUR)", "2500": "needs a currency", "2.500,00 EUR": "invalid in en (not read as 2.5)", "5,000,000 JPY": "Shanghai Lantern Trading (5000000 minor units = yen)" },
+            "spec": "credit_limit supports en amount formats and ranges, always with a currency (amount_currency, compared with credit_currency). Ambiguous or foreign formats require clarification; no fuzzy numeric matching."
+        },
+        { "field": "payment_terms_days", "column": "payment_terms_days", "category": "amount", "behaviors": [], "es": { "filter": "payment_terms_days" }, "param": null, "spec": "Integer filter (not exposed in the template yet)." },
+        {
+            "field": "status", "column": "status", "category": "fixed list", "behaviors": ["fixed_list"],
+            "es": { "filter": "status" }, "param": "status",
+            "values": [
+                { "code": "PENDING", "labels": ["pending"], "wording": ["onboarding", "awaiting documents"] },
+                { "code": "ACTIVE", "labels": ["active"], "wording": ["open", "live"] },
+                { "code": "SUSPENDED", "labels": ["suspended"], "wording": ["frozen", "on hold"] },
+                { "code": "CLOSED", "labels": ["closed"], "wording": ["terminated", "offboarded"] }
+            ],
+            "ambiguous": { "inactive": ["SUSPENDED", "CLOSED"], "dormant": ["SUSPENDED", "CLOSED"] },
+            "spec": "status supports codes, labels and curated wording (frozen -> SUSPENDED). dormant needs a selection; suspnded is a suggestion the user confirms; archived is invalid."
+        },
+        {
+            "field": "notes", "column": "notes", "category": "free text", "behaviors": ["blur", "stemming"],
+            "es": { "words": "notes (english_analyzer)", "phrase": "notes.exact (standard)" },
+            "param": "query, phrase, broader",
+            "languages": ["en"],
+            "stemmer": "english (Porter) + keyword_marker [organic, organization, organizations]: Porter reduces both to organ",
+            "examples": {
+                "refund delay": "Northwind (Refunds delayed)", "audit run": "Northwind (audits are running)", "auditor": "Shanghai Lantern only (auditor is another word)",
+                "order pause warehouse": "Meridian (Ordering paused ... warehouses)", "orderly": "nothing",
+                "organ": "Willow Organ Builders only (not Organic produce, not Organization)",
+                "\"refunds delayed\" (phrase)": "Northwind", "\"refund delay\" (phrase)": "nothing (phrases are not stemmed)",
+                "the": "nothing (stop word only)", "refund warehouse (broader)": "Northwind and Meridian, labeled notes_subset"
+            },
+            "spec": "notes matches all meaningful English words in any order with word forms (refund delay finds Refunds delayed), ignores stop words, keeps quoted phrases strict (phrase). Subset recovery (broader) is labeled notes_subset. Other languages are not stemmed."
+        },
+        {
+            "field": "opened_at", "column": "opened_at", "category": "date", "behaviors": [],
+            "es": { "filter": "opened_at" }, "param": "opened_gte / opened_lt (+ time_zone)",
+            "spec": "opened_at supports ISO dates and [gte, lt) ranges in an explicit time zone."
+        },
+        { "field": "cdc_op", "column": "Debezium op", "category": "technical", "behaviors": [], "es": {}, "param": null, "spec": "c / u / r of the last change." },
+        { "field": "cdc_source_ts", "column": "Debezium source.ts_ms", "category": "technical", "behaviors": [], "es": {}, "param": null, "spec": "Commit time in Postgres." },
+        { "field": "cdc_processed_ts", "column": "Debezium ts_ms", "category": "technical", "behaviors": [], "es": {}, "param": null, "spec": "Time Debezium processed the change." }
+    ]
+}

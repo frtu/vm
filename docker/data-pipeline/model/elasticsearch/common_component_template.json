@@ -1,0 +1,86 @@
+{
+    "_meta": {
+        "description": "Text analysis shared by the inventory indices (customers, contacts, accounts). An index template lists it in composed_of; a field picks an analyzer by the meaning of its value.",
+        "analyzers": {
+            "name_index_analyzer / name_search_analyzer": "person names, address lines, aliases: lowercase + accent folding; at index time hyphen and apostrophe parts are added next to the original token (Marie-Claire -> marie-claire, marie, claire; D'Arcy -> d'arcy, d, arcy), never joined (no marieclaire)",
+            "company_index_analyzer / company_search_analyzer": "company names: name rules + legal suffixes removed on both sides (Ltd, GmbH, Inc, AB, ...), so a suffix carries no weight and a suffix alone matches nothing",
+            "name_prefix_index_analyzer / company_prefix_index_analyzer": "edge n-grams from 3 characters (alex -> Alexandra); queried with the search analyzer, so the query is never cut into n-grams",
+            "email_text_analyzer": "email fragments: . _ + @ - become spaces (kai_lee+invoices.2025@mailbox.example -> kai lee invoices 2025 mailbox example)",
+            "english_analyzer": "English free text: lowercase, stop words, Porter stemmer (delayed / delay -> delai). keyword_marker keeps organic and organization whole: Porter reduces both to organ",
+            "lowercase_normalizer": "email lookup: the whole address lowercased, nothing removed",
+            "phone_normalizer / phone_last4_normalizer": "phone lookup: digits only (spaces, brackets, dots, dashes, +, U+2011 dropped) / their last 4"
+        }
+    },
+    "template": {
+        "settings": {
+            "analysis": {
+                "char_filter": {
+                    "email_separators": { "type": "pattern_replace", "pattern": "[._+@-]", "replacement": " " },
+                    "digits_only": { "type": "pattern_replace", "pattern": "[^0-9]", "replacement": "" },
+                    "last_four_digits": { "type": "pattern_replace", "pattern": "^.*([0-9]{4})$", "replacement": "$1" }
+                },
+                "filter": {
+                    "name_word_delimiter": {
+                        "type": "word_delimiter_graph",
+                        "preserve_original": true,
+                        "split_on_case_change": false,
+                        "split_on_numerics": false,
+                        "catenate_words": false,
+                        "catenate_all": false,
+                        "stem_english_possessive": true
+                    },
+                    "legal_suffix_stop": {
+                        "type": "stop",
+                        "ignore_case": true,
+                        "stopwords": ["ltd", "limited", "inc", "incorporated", "llc", "llp", "plc", "co", "corp",
+                                      "gmbh", "ag", "sarl", "s.a.", "s.r.l.", "pty", "as", "ab"]
+                    },
+                    "name_prefix": { "type": "edge_ngram", "min_gram": 3, "max_gram": 20, "preserve_original": true },
+                    "english_stop": { "type": "stop", "stopwords": "_english_" },
+                    "english_protected": { "type": "keyword_marker", "keywords": ["organic", "organization", "organizations"] },
+                    "english_stemmer": { "type": "stemmer", "language": "english" }
+                },
+                "normalizer": {
+                    "lowercase_normalizer": { "type": "custom", "filter": ["lowercase"] },
+                    "phone_normalizer": { "type": "custom", "char_filter": ["digits_only"] },
+                    "phone_last4_normalizer": { "type": "custom", "char_filter": ["digits_only", "last_four_digits"] }
+                },
+                "analyzer": {
+                    "name_index_analyzer": {
+                        "tokenizer": "whitespace",
+                        "filter": ["name_word_delimiter", "flatten_graph", "lowercase", "asciifolding"]
+                    },
+                    "name_search_analyzer": {
+                        "tokenizer": "standard",
+                        "filter": ["lowercase", "asciifolding"]
+                    },
+                    "name_prefix_index_analyzer": {
+                        "tokenizer": "whitespace",
+                        "filter": ["name_word_delimiter", "flatten_graph", "lowercase", "asciifolding", "name_prefix"]
+                    },
+                    "company_index_analyzer": {
+                        "tokenizer": "whitespace",
+                        "filter": ["name_word_delimiter", "flatten_graph", "lowercase", "asciifolding", "legal_suffix_stop"]
+                    },
+                    "company_search_analyzer": {
+                        "tokenizer": "standard",
+                        "filter": ["lowercase", "asciifolding", "legal_suffix_stop"]
+                    },
+                    "company_prefix_index_analyzer": {
+                        "tokenizer": "whitespace",
+                        "filter": ["name_word_delimiter", "flatten_graph", "lowercase", "asciifolding", "legal_suffix_stop", "name_prefix"]
+                    },
+                    "email_text_analyzer": {
+                        "char_filter": ["email_separators"],
+                        "tokenizer": "standard",
+                        "filter": ["lowercase", "asciifolding"]
+                    },
+                    "english_analyzer": {
+                        "tokenizer": "standard",
+                        "filter": ["lowercase", "english_stop", "english_protected", "english_stemmer"]
+                    }
+                }
+            }
+        }
+    }
+}

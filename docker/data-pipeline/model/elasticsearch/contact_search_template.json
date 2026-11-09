@@ -1,0 +1,60 @@
+{{!
+  contacts-lookup: find a contact detail (index contacts_connect). Typo correction is never applied.
+  Lookup, the user has the full value:
+    email        whole address, lowercased; dots and +tags are part of the address
+    phone        digits only, so formatting does not matter; no guessed country or trunk prefix
+  Discovery, the user has a part of it (results are candidates, not identity proof):
+    phone_last4  last 4 digits, every matching contact
+    query        whole email fragments split on . _ + @ - (tier email_fragment)
+  Filters: kind (EMAIL / PHONE), label, customer_id, preferred. Preferred contacts rank first.
+}}
+{
+    "from": {{from}}{{^from}}0{{/from}},
+    "size": {{size}}{{^size}}10{{/size}},
+
+    {{#result_fields.size}}
+    "_source":  {{#toJson}}result_fields{{/toJson}},
+    {{/result_fields.size}}
+
+    "query": {
+        "bool": {
+            "must": [
+                {{#email}}
+                { "term": { "email": { "value": "{{email}}", "_name": "email_exact" } } },
+                {{/email}}
+                {{#phone}}
+                { "term": { "phone.normalized": { "value": "{{phone}}", "_name": "phone_exact" } } },
+                {{/phone}}
+                {{#phone_last4}}
+                { "term": { "phone.last4": { "value": "{{phone_last4}}", "_name": "phone_last4" } } },
+                {{/phone_last4}}
+                {{#query}}
+                { "match": { "email.text": { "query": "{{query}}", "operator": "and", "_name": "email_fragment" } } },
+                {{/query}}
+                { "match_all": {} }
+            ],
+            "should": [
+                { "term": { "preferred": { "value": true, "boost": 0.5 } } }
+            ],
+            "filter": [
+                {{#kind}}
+                { "term": { "kind": "{{kind}}" } },
+                {{/kind}}
+                {{#label}}
+                { "term": { "label": "{{label}}" } },
+                {{/label}}
+                {{#customer_id}}
+                { "term": { "customer_id": {{customer_id}} } },
+                {{/customer_id}}
+                {{#preferred}}
+                { "term": { "preferred": true } },
+                {{/preferred}}
+                { "match_all": {} }
+            ]
+        }
+    },
+    "aggs": {
+        "kind": { "terms": { "field": "kind", "size": 5 } },
+        "label": { "terms": { "field": "label", "size": 10 } }
+    }
+}

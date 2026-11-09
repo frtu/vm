@@ -1,0 +1,52 @@
+{
+    "entity": "contact",
+    "table": "inventory.contacts",
+    "index": "contacts_connect",
+    "search_template": "contacts-lookup",
+    "locales": ["en"],
+    "description": "Search contract of each contact field. A contact detail is either looked up (the user has the full value) or discovered (the user has a part of it); discovery returns candidates, never proof of identity. Typo correction is disabled on every field.",
+    "fields": [
+        { "field": "id", "column": "id", "category": "identifier", "behaviors": [], "es": { "lookup": "id (= _id)" }, "param": null, "spec": "Internal key." },
+        { "field": "customer_id", "column": "customer_id", "category": "identifier", "behaviors": [], "es": { "filter": "customer_id" }, "param": "customer_id", "spec": "Owner of the contact; shown with every discovery result so equal fragments can be told apart." },
+        {
+            "field": "kind", "column": "kind", "category": "fixed list", "behaviors": ["fixed_list"],
+            "es": { "filter": "kind" }, "param": "kind",
+            "values": [
+                { "code": "EMAIL", "labels": ["email"], "wording": ["e-mail", "mail", "address"] },
+                { "code": "PHONE", "labels": ["phone"], "wording": ["telephone", "number", "mobile number"] }
+            ],
+            "spec": "kind is EMAIL or PHONE; the pipeline copies value to email or phone accordingly."
+        },
+        {
+            "field": "label", "column": "label", "category": "fixed list", "behaviors": ["fixed_list"],
+            "es": { "filter": "label" }, "param": "label",
+            "values": [
+                { "code": "WORK", "labels": ["work"], "wording": ["office", "business"] },
+                { "code": "HOME", "labels": ["home"], "wording": ["personal"] },
+                { "code": "MOBILE", "labels": ["mobile"], "wording": ["cell"] },
+                { "code": "BILLING", "labels": ["billing"], "wording": ["invoices"] }
+            ],
+            "spec": "label supports the four codes and curated wording (cell -> MOBILE)."
+        },
+        { "field": "value", "column": "value", "category": "contact", "behaviors": [], "es": { "display": "value" }, "param": null, "spec": "Value as typed by the user, displayed as is; never searched directly." },
+        {
+            "field": "email", "column": "value (kind EMAIL)", "category": "contact", "behaviors": ["blur"],
+            "es": { "lookup": "email (lowercase_normalizer)", "fragments": "email.text" },
+            "param": "email (lookup), query (fragments)",
+            "examples": { "OLA.NORDMANN@example.no": "Ola's work email", "kai_lee@mailbox.example": "nothing (+tag kept)", "northwind traders": "a.petrova@northwind-traders.example", "northwindtraders": "nothing" },
+            "spec": "email supports exact lookup after lowercasing and discovery by whole fragments split on . _ + @ -. No typo matching; dots and +tags are never removed."
+        },
+        {
+            "field": "phone", "column": "value (kind PHONE)", "category": "contact", "behaviors": [],
+            "es": { "lookup": "phone.normalized", "last4": "phone.last4" },
+            "param": "phone, phone_last4",
+            "examples": { "415.555.0123": "(415) 555-0123", "+61 (2) 9374-4000": "+61 2 9374 4000", "02 9374 4000": "nothing (trunk prefix is not the country code)", "555-0123": "nothing (no partial)", "last4 0123": "(415) 555-0123 and +44 161 496 0123" },
+            "spec": "phone supports exact lookup on digits only (spaces, brackets, dots, dashes, + ignored) and discovery by the last 4 digits. No country or trunk prefix is assumed. No typo matching."
+        },
+        { "field": "preferred", "column": "preferred", "category": "flag", "behaviors": [], "es": { "filter": "preferred" }, "param": "preferred", "spec": "Filter; preferred contacts rank first." },
+        { "field": "verified_at", "column": "verified_at", "category": "date", "behaviors": [], "es": {}, "param": null, "spec": "Not searched; shown as context." },
+        { "field": "cdc_op", "column": "Debezium op", "category": "technical", "behaviors": [], "es": {}, "param": null, "spec": "c / u / r of the last change." },
+        { "field": "cdc_source_ts", "column": "Debezium source.ts_ms", "category": "technical", "behaviors": [], "es": {}, "param": null, "spec": "Commit time in Postgres." },
+        { "field": "cdc_processed_ts", "column": "Debezium ts_ms", "category": "technical", "behaviors": [], "es": {}, "param": null, "spec": "Time Debezium processed the change." }
+    ]
+}

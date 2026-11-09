@@ -203,6 +203,8 @@ services:
       - POSTGRES_PASSWORD=${APP_DB_PASSWORD:-admin}
     volumes:
       - $PWD/db/init:/docker-entrypoint-initdb.d/
+      # model migrations, run by db/init/10-init-model.sh on the first start of an empty db/data
+      - $PWD/model/migration:/model-migration:ro
       - $PWD/db/data:/var/lib/postgresql/data
     networks:
       - network

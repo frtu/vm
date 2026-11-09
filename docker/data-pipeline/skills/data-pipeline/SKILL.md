@@ -33,7 +33,7 @@ Every script supports `help`, e.g. `scripts/kafka.sh help`.
 | CDC state in Postgres | `scripts/db.sh slots` |
 | Connectors | `scripts/connector.sh list / register [file] / status <n> / restart <n>` |
 | ES sink plugin | `scripts/connector.sh install-es-sink`, then `scripts/stack.sh up kafka-connect` |
-| Domain migrations (Flyway) | `scripts/migrate.sh info / migrate [version] / validate` |
+| Domain migrations (Flyway) | `scripts/migrate.sh info / migrate [version] / validate / repair` |
 | Topics | `scripts/kafka.sh topics`, `scripts/kafka.sh consume <topic> [max]` |
 | Flink | `scripts/flink.sh build`, `scripts/flink.sh submit`, `scripts/flink.sh jobs` |
 | Elasticsearch | `scripts/es.sh indices`, `scripts/es.sh search <index> "<q>"` |
@@ -56,11 +56,12 @@ Service names: `postgres`, `kafka`, `kafka-connect`, `kafka-ui`, `redpanda`,
 4. Change a row with `scripts/db.sh query "UPDATE ..."`.
 5. `scripts/kafka.sh topics`, then `scripts/kafka.sh consume <topic.prefix>.<schema>.<table> 5`.
 
-**CDC to ES without Flink (domain `flink-cdc-es/domain`, table `inventory.customers` -> index `customers_connect`)**
+**CDC to ES without Flink (domain `model`, tables `inventory.customers` / `contacts` / `accounts` -> indices `<table>_connect`)**
 1. `scripts/connector.sh plugins` must list `ElasticsearchSinkConnector`; else `install-es-sink` + `stack.sh up kafka-connect`.
-2. `scripts/migrate.sh migrate 1` (create tables), then create the ingest pipeline + index and register
-   `customers-postgres-source` / `customers-es-sink` (notebook `CDC to ES.ipynb`, or `connector.sh register <file>`).
-3. `scripts/migrate.sh migrate` (insert), then `scripts/es.sh count customers_connect`.
+2. `scripts/migrate.sh migrate 3` (create tables), then `python3 model/tools/apply_elasticsearch.py`
+   (analysis, pipelines, indices, search templates) and `connector.sh register` `customers-postgres-source` / `customers-es-sink`.
+3. `scripts/migrate.sh migrate` (insert), `scripts/connector.sh restart customers-es-sink` (new topics), then
+   `python3 -m unittest discover -s model/tests`.
 
 **Deploy a Flink job**
 1. `scripts/flink.sh build [project]` (default `flink-cdc-es`, the CDC job).

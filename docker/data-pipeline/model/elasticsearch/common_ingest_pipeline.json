@@ -1,0 +1,15 @@
+{
+    "description": "Debezium unwrapped row (add.fields=op,source.ts_ms,ts_ms) -> CDC fields shared by every inventory document; called first by each entity pipeline",
+    "_meta": { "used_by": ["customers-cdc", "contacts-cdc", "accounts-cdc"] },
+    "processors": [
+        { "rename": { "field": "__op", "target_field": "cdc_op", "ignore_missing": true, "description": "c / u / r (snapshot); deletes never reach the pipeline (the sink deletes on tombstones)" } },
+        {
+            "script": {
+                "lang": "painless",
+                "description": "source.ts_ms / ts_ms (ms since epoch) -> ISO-8601",
+                "source": "if (ctx.__source_ts_ms instanceof Number) { ctx.cdc_source_ts = Instant.ofEpochMilli(((Number) ctx.__source_ts_ms).longValue()).toString(); } if (ctx.__ts_ms instanceof Number) { ctx.cdc_processed_ts = Instant.ofEpochMilli(((Number) ctx.__ts_ms).longValue()).toString(); }"
+            }
+        },
+        { "remove": { "field": ["__source_ts_ms", "__ts_ms", "__deleted"], "ignore_missing": true } }
+    ]
+}

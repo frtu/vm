@@ -37,7 +37,7 @@ No local `psql` or Kafka CLI is needed: those commands run inside the containers
 | `health.sh`    | All components           | `[--wait <seconds>]`                                                                                                             |
 | `db.sh`        | PostgreSQL               | `psql`, `query "<sql>"` (or `-` for stdin), `file <x.sql>`, `tables [schema]`, `slots`                                           |
 | `connector.sh` | Kafka Connect / Debezium | `list`, `register [file.json]`, `status <name>`, `config <name>`, `restart <name>`, `delete <name>`, `plugins`, `install-es-sink [version]` |
-| `migrate.sh`   | Flyway (domain migrations) | `info`, `migrate [version]`, `validate` (files in `flink-cdc-es/domain/migration`)                                          |
+| `migrate.sh`   | Flyway (domain migrations) | `info`, `migrate [version]`, `validate`, `repair` (files in `model/migration`)                                  |
 | `kafka.sh`     | Kafka                    | `topics`, `describe <topic>`, `consume <topic> [max] [--tail]`, `produce <topic>`, `create <topic> [partitions]`, `groups`       |
 | `flink.sh`     | Flink                    | `build [project]`, `submit [project] [args]`, `jobs`, `job <id>`, `cancel <id>`, `overview`                                      |
 | `es.sh`        | Elasticsearch            | `health`, `indices`, `count <i>`, `search <i> [q] [size]`, `mapping <i>`, `delete-index <i> --yes`, `raw <METHOD> <path> [json]` |
@@ -70,11 +70,13 @@ scripts/kafka.sh consume ecommerce_db.inventory.customers 5
 
 # Domain migrations (Flyway) + CDC to ES without Flink
 scripts/connector.sh install-es-sink    # once, then: scripts/stack.sh up kafka-connect
-scripts/migrate.sh migrate 1             # create inventory tables if missing
-# create ES pipeline + index (notebooks/CDC to ES.ipynb), then:
+scripts/migrate.sh migrate 3             # V1-V3: create customers, contacts, accounts if missing
+python3 model/tools/apply_elasticsearch.py   # ES analysis, pipelines, indices, search templates
 scripts/connector.sh register debezium-connector/customers-postgres-source.json
 scripts/connector.sh register debezium-connector/customers-es-sink.json
-scripts/migrate.sh migrate               # insert seed data -> ES index customers_connect
+scripts/migrate.sh migrate               # V11-V23: insert rows -> ES indices <table>_connect
+scripts/connector.sh restart customers-es-sink   # subscribe to the topics created by the inserts
+python3 -m unittest discover -s model/tests
 
 # Flink
 scripts/flink.sh build                   # flink-pipeline by default

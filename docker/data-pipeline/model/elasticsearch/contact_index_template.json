@@ -1,0 +1,46 @@
+{
+    "settings": {
+        "index": {
+            "number_of_shards": 1,
+            "number_of_replicas": 0,
+            "default_pipeline": "contacts-cdc"
+        }
+    },
+    "mappings": {
+        "dynamic": false,
+        "_meta": {
+            "entity": "contact",
+            "table": "inventory.contacts",
+            "catalog": "catalog/contact_field_catalog.json",
+            "analysis": "component template inventory-text-analysis",
+            "design": "value is the display value; the pipeline copies it to email or phone so each kind is searched with its own rules. Lookup (term) and discovery (fragments, last 4) are separate parameters"
+        },
+        "properties": {
+            "id": { "type": "long", "meta": { "category": "identifier", "search": "internal key = _id" } },
+            "customer_id": { "type": "long", "meta": { "category": "identifier", "search": "term, owner of the contact" } },
+            "kind": { "type": "keyword", "meta": { "category": "fixed list", "search": "EMAIL / PHONE" } },
+            "label": { "type": "keyword", "meta": { "category": "fixed list", "search": "WORK / HOME / MOBILE / BILLING" } },
+            "value": { "type": "keyword", "ignore_above": 256, "meta": { "category": "contact", "search": "display only" } },
+            "email": {
+                "type": "keyword",
+                "normalizer": "lowercase_normalizer",
+                "meta": { "category": "contact", "search": "term lowercased; .text whole fragments" },
+                "fields": { "text": { "type": "text", "analyzer": "email_text_analyzer" } }
+            },
+            "phone": {
+                "type": "keyword",
+                "ignore_above": 64,
+                "meta": { "category": "contact", "search": "term on digits only or last 4 digits" },
+                "fields": {
+                    "normalized": { "type": "keyword", "normalizer": "phone_normalizer" },
+                    "last4": { "type": "keyword", "normalizer": "phone_last4_normalizer" }
+                }
+            },
+            "preferred": { "type": "boolean", "meta": { "category": "flag", "search": "filter, ranks first" } },
+            "verified_at": { "type": "date", "meta": { "category": "date", "search": "not searched" } },
+            "cdc_op": { "type": "keyword", "meta": { "category": "technical" } },
+            "cdc_source_ts": { "type": "date", "meta": { "category": "technical" } },
+            "cdc_processed_ts": { "type": "date", "meta": { "category": "technical" } }
+        }
+    }
+}
